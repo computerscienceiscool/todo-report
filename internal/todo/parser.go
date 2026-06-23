@@ -13,7 +13,7 @@ import (
 
 var (
 	indexLineRE     = regexp.MustCompile(`^\s*(?:-\s*)?(?:\[( |x|X)\]\s+)?([A-Za-z0-9-]+)\s+-\s+(.+?)(?:\s+\(` + "`([^`]+)`" + `\))?\s*$`)
-	subtaskLineRE   = regexp.MustCompile(`^\s*-\s+\[( |x|X)\]\s+([A-Za-z0-9]+(?:\.\d+)+)\s+(.+?)\s*$`)
+	subtaskLineRE   = regexp.MustCompile(`^\s*-\s+\[( |x|X)\]\s+(\S+)(?:\s+(.+?))?\s*$`)
 	badCheckboxRE   = regexp.MustCompile(`^\s*-\s+\[[^ xX]\]`)
 	targetRefRE     = regexp.MustCompile(`\b(TODO-[a-z]{5})/([A-Za-z0-9]+(?:\.\d+)+)\b`)
 	proquintRE      = regexp.MustCompile(`^TODO-[a-z]{5}$`)
@@ -234,6 +234,7 @@ func ParseDetail(repoName, branch, commit string, parent model.TodoItem, file, c
 				Line:     lineNo,
 				Message:  fmt.Sprintf("Subtask ID %q is malformed.", subtaskID),
 			})
+			continue
 		}
 		if firstLine, ok := seen[subtaskID]; ok {
 			findings = append(findings, model.LintFinding{

@@ -77,6 +77,23 @@ Depends on TODO-binap/binap.9
 	}
 }
 
+func TestParseDetailReportsMalformedSubtaskID(t *testing.T) {
+	content := `# TODO-binap
+
+- [ ] binap.one Bad subtask id
+- [ ] valid.1 Good subtask id
+`
+
+	subtasks, findings := ParseDetail("repo", "main", "abc123", sampleParent(), "TODO/TODO-binap.md", content)
+	codes := findCodes(findings)
+	if !codes["malformed_subtask_id"] {
+		t.Fatalf("expected malformed_subtask_id in %#v", findings)
+	}
+	if len(subtasks) != 1 || subtasks[0].SubtaskID != "valid.1" {
+		t.Fatalf("expected only valid subtask to parse, got %#v", subtasks)
+	}
+}
+
 func sampleParent() model.TodoItem {
 	return model.TodoItem{
 		TodoID:     "TODO-binap",

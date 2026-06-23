@@ -9,8 +9,8 @@ tool with human-readable output by default.
 The tool has three main features:
 
 1. `age`
-   Show how old top-level open TODOs are, based on the first commit where each
-   TODO appears in the selected branch's reachable history.
+   Show how old top-level TODOs are, based on the first commit where each TODO
+   appears in the selected branch's reachable history.
 2. `drift`
    Compare TODO state across two branches, including top-level items, detail
    file presence, and subtasks.
@@ -86,6 +86,7 @@ todo-report age --repo /path/to/repo --branch main
 ```
 
 Shows top-level TODOs ordered by age, oldest first.
+This currently includes both open and completed top-level TODOs.
 
 ### `drift`
 
@@ -138,7 +139,7 @@ Format guidance:
 - reports duplicate TODO IDs
 - reports duplicate subtask IDs
 - reports malformed TODO IDs
-- reports malformed subtask IDs
+- reports malformed subtask IDs on checkbox-style detail-file subtask lines
 - reports invalid checkbox syntax
 - reports missing detail files
 - reports referenced subtasks not found

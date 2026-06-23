@@ -2,6 +2,9 @@
 
 This file records real-world example invocations for `todo-report`.
 
+Unless otherwise noted, `age` currently reports all top-level TODOs found in
+the selected branch, not only open ones.
+
 ## Coordination repo
 
 The current demo repo is `~/lab/cswg/coordination` on branch `jj`.
@@ -12,7 +15,7 @@ The current demo repo is `~/lab/cswg/coordination` on branch `jj`.
 todo-report age --repo ~/lab/cswg/coordination --branch jj --format text
 ```
 
-This is useful when the team wants to see stale open work ordered by age.
+This is useful when the team wants to see older top-level TODOs ordered by age.
 
 ### Drift
 
@@ -30,7 +33,7 @@ todo-report lint --repo ~/lab/cswg/coordination --branch jj --format markdown
 ```
 
 This is useful when the team wants a GitHub-friendly checklist-style report of
-broken detail links or orphaned detail files.
+broken detail links, malformed subtask lines, or orphaned detail files.
 
 ### Health JSON
 
