@@ -47,9 +47,47 @@ func TestParseDetailSupportsNestedSubtasks(t *testing.T) {
 	}
 }
 
+func TestParseIndexReportsBrokenLinksAndBadCheckboxes(t *testing.T) {
+	content := `# TODO Index
+
+- [q] TODO-binap - Lock outline (TODO/TODO-binap.md)
+TODO-badi - Invalid top-level (` + "`TODO/TODO-badi.md`" + `)
+`
+
+	_, findings := ParseIndex("repo", "main", "abc123", "TODO/TODO.md", content)
+	codes := findCodes(findings)
+	for _, want := range []string{"broken_detail_link", "invalid_checkbox", "malformed_todo_id"} {
+		if !codes[want] {
+			t.Fatalf("expected code %q in findings %#v", want, findings)
+		}
+	}
+}
+
+func TestParseDetailReportsMissingReferencedSubtask(t *testing.T) {
+	content := `# TODO-binap
+
+- [ ] binap.1 First
+Depends on TODO-binap/binap.9
+`
+
+	_, findings := ParseDetail("repo", "main", "abc123", sampleParent(), "TODO/TODO-binap.md", content)
+	codes := findCodes(findings)
+	if !codes["referenced_subtask_not_found"] {
+		t.Fatalf("expected referenced_subtask_not_found in %#v", findings)
+	}
+}
+
 func sampleParent() model.TodoItem {
 	return model.TodoItem{
 		TodoID:     "TODO-binap",
 		SourceFile: "TODO/TODO.md",
 	}
+}
+
+func findCodes(findings []model.LintFinding) map[string]bool {
+	out := make(map[string]bool, len(findings))
+	for _, finding := range findings {
+		out[finding.Code] = true
+	}
+	return out
 }
