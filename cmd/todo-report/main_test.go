@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"io"
+	"os"
 	"strings"
 	"testing"
+
+	"todo-report/internal/testrepo"
 )
 
 func TestRunErrors(t *testing.T) {
@@ -90,4 +95,114 @@ func TestNormalizeFormat(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestRunAgeEndToEnd(t *testing.T) {
+	repo := sampleCLIRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"age", "--repo", repo.Dir, "--branch", "jj", "--format", "text"}); err != nil {
+			t.Fatalf("run age: %v", err)
+		}
+	})
+
+	for _, want := range []string{"TODO-ravud", "TODO/TODO.md", "Legacy task"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunDriftEndToEnd(t *testing.T) {
+	repo := sampleCLIRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"drift", "--repo", repo.Dir, "--branch-a", "main", "--branch-b", "jj", "--format", "tsv"}); err != nil {
+			t.Fatalf("run drift: %v", err)
+		}
+	})
+
+	for _, want := range []string{"kind\tvalue\tdetails", "only_in_jj\tTODO-ravud", "completed_only_in_jj\tTODO-binap"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunLintEndToEnd(t *testing.T) {
+	repo := sampleCLIRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"lint", "--repo", repo.Dir, "--branch", "jj", "--format", "markdown"}); err != nil {
+			t.Fatalf("run lint: %v", err)
+		}
+	})
+
+	for _, want := range []string{"## Lint Report", "checked_parent_open_subtask", "orphan_detail_file"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunHealthEndToEnd(t *testing.T) {
+	repo := sampleCLIRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"health", "--repo", repo.Dir, "--branch", "jj", "--compare", "main", "--json"}); err != nil {
+			t.Fatalf("run health: %v", err)
+		}
+	})
+
+	for _, want := range []string{`"repo":`, `"branch": "jj"`, `"open_todos": 2`, `"completed_todos": 1`, `"total_difference_rows": 3`} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func sampleCLIRepo(t *testing.T) *testrepo.Repo {
+	t.Helper()
+
+	repo := testrepo.New(t)
+	repo.Write("TODO/TODO.md", "# TODO Index\n\n- [ ] TODO-binap - Lock outline (`TODO/TODO-binap.md`)\n001 - Legacy task\n")
+	repo.Write("TODO/TODO-binap.md", "# TODO-binap\n\n- [ ] binap.1 First subtask\n")
+	repo.Commit("Seed main", "2026-01-01T00:00:00Z")
+
+	repo.CheckoutNew("jj")
+	repo.Write("TODO/TODO.md", "# TODO Index\n\n- [x] TODO-binap - Lock outline (`TODO/TODO-binap.md`)\n- [ ] TODO-ravud - New work (`TODO/TODO-ravud.md`)\n001 - Legacy task\n")
+	repo.Write("TODO/TODO-ravud.md", "# TODO-ravud\n\n- [ ] ravud.1 Branch-only subtask\n")
+	repo.Write("TODO/TODO-orphan.md", "# TODO-orphan\n\n- [ ] orphan.1 Unreferenced detail file\n")
+	repo.Commit("Update jj", "2026-01-02T00:00:00Z")
+
+	return repo
+}
+
+func captureStdout(t *testing.T, fn func()) string {
+	t.Helper()
+
+	oldStdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	os.Stdout = w
+	defer func() {
+		os.Stdout = oldStdout
+	}()
+
+	fn()
+
+	if err := w.Close(); err != nil {
+		t.Fatalf("close writer: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, r); err != nil {
+		t.Fatalf("read stdout: %v", err)
+	}
+	if err := r.Close(); err != nil {
+		t.Fatalf("close reader: %v", err)
+	}
+	return buf.String()
 }
