@@ -171,15 +171,15 @@ TSV for shell tools:
 todo-report age --repo ~/lab/cswg/coordination --branch jj --format tsv
 ```
 
-More concrete examples live in [cli-examples.md](/home/jj/lab/cswg/todo-report/docs/cli-examples.md).
+More concrete examples live in [docs/cli-examples.md](docs/cli-examples.md).
 
 ## Demo video
 
 A rendered landscape demo video is checked in at
-[todo-report-demo.mp4](/home/jj/lab/cswg/todo-report/docs/videos/todo-report-demo.mp4).
+[docs/videos/todo-report-demo.mp4](docs/videos/todo-report-demo.mp4).
 
 The generator script lives at
-[render-demo-video.sh](/home/jj/lab/cswg/todo-report/scripts/render-demo-video.sh).
+[scripts/render-demo-video.sh](scripts/render-demo-video.sh).
 It renders a terminal-style explainer video using the `coordination` repo as
 the demo source.
 
