@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>todo-report</title>
+  <meta
+    name="description"
+    content="todo-report is a local, branch-aware CLI that measures TODO age, compares TODO drift across branches, lints TODO structure, and rolls those signals into a health summary."
+  >
+  <style>
+    :root {
+      --bg: #f4efe2;
+      --bg-strong: #e7dcc2;
+      --panel: rgba(255, 251, 243, 0.88);
+      --panel-strong: #fffaf0;
+      --ink: #1f1b17;
+      --muted: #5c5146;
+      --accent: #a33f24;
+      --accent-2: #0f6b5d;
+      --border: rgba(31, 27, 23, 0.14);
+      --shadow: 0 20px 60px rgba(69, 47, 28, 0.14);
+      --radius: 22px;
+      --radius-sm: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(163, 63, 36, 0.12), transparent 34%),
+        radial-gradient(circle at 85% 20%, rgba(15, 107, 93, 0.14), transparent 28%),
+        linear-gradient(180deg, #fbf6ea 0%, var(--bg) 52%, #efe3ca 100%);
+      font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 34px;
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 6px);
+      background:
+        linear-gradient(135deg, rgba(255, 250, 240, 0.95), rgba(244, 239, 226, 0.88)),
+        linear-gradient(45deg, rgba(163, 63, 36, 0.08), rgba(15, 107, 93, 0.06));
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -110px auto;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(163, 63, 36, 0.18), transparent 68%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 12px;
+      border: 1px solid rgba(163, 63, 36, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 248, 238, 0.92);
+      color: var(--accent);
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      line-height: 1.05;
+    }
+
+    h1 {
+      margin-top: 18px;
+      font-size: clamp(2.8rem, 5vw, 5rem);
+      letter-spacing: -0.04em;
+    }
+
+    .lede {
+      width: min(760px, 100%);
+      margin: 18px 0 0;
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+      color: var(--muted);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 22px;
+      margin-top: 28px;
+      align-items: start;
+    }
+
+    .panel,
+    .terminal,
+    .card,
+    .video-shell {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .signal {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--accent-2);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), #c55c30);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .button.secondary {
+      color: var(--ink);
+      background: rgba(255, 250, 240, 0.92);
+      border-color: rgba(31, 27, 23, 0.12);
+    }
+
+    .terminal {
+      overflow: hidden;
+      background: #1f1713;
+      color: #f7efe0;
+    }
+
+    .terminal-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(247, 239, 224, 0.7);
+      font-size: 0.85rem;
+    }
+
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #f08f5a;
+      box-shadow: 16px 0 0 #e8bf59, 32px 0 0 #56b8a6;
+      margin-right: 28px;
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      padding: 18px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    code {
+      font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    section {
+      margin-top: 28px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .section-head p {
+      margin: 0;
+      max-width: 600px;
+      color: var(--muted);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      padding: 20px;
+    }
+
+    .card h3 {
+      font-size: 1.4rem;
+    }
+
+    .card p {
+      margin: 12px 0 0;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 107, 93, 0.1);
+      color: var(--accent-2);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .video-shell {
+      padding: 16px;
+      background: var(--panel-strong);
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      border-radius: calc(var(--radius) - 6px);
+      background: #100c09;
+    }
+
+    .video-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 4px 4px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .link-tile {
+      flex: 1 1 220px;
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 251, 243, 0.88);
+      text-decoration: none;
+    }
+
+    .link-tile strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .link-tile span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .footer {
+      margin-top: 32px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        flex-direction: column;
+        align-items: start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 18px, 1120px);
+        padding-top: 10px;
+      }
+
+      .hero,
+      .panel,
+      .card,
+      .video-shell {
+        border-radius: 18px;
+      }
+
+      .hero {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Go CLI · GitHub Pages · Local-first</div>
+      <h1>todo-report</h1>
+      <p class="lede">
+        <code>todo-report</code> is a local, branch-aware CLI that measures TODO age,
+        compares TODO drift across branches, lints TODO structure, and rolls those
+        signals into a health summary.
+      </p>
+
+      <div class="hero-grid">
+        <div class="panel">
+          <span class="signal">Why teams use it</span>
+          <p>
+            It gives visual teams a readable health story, Unix-heavy teammates a
+            filter-friendly CLI, and repo owners a way to spot stale work,
+            structural drift, and TODO hygiene problems without changing the source data.
+          </p>
+          <div class="hero-links">
+            <a class="button" href="./docs/videos/todo-report-demo.mp4">Watch Demo Video</a>
+            <a class="button secondary" href="https://github.com/computerscienceiscool/todo-report">View Source</a>
+            <a class="button secondary" href="https://github.com/computerscienceiscool/todo-report/blob/main/README.md">Read README</a>
+            <a class="button secondary" href="https://github.com/computerscienceiscool/todo-report/blob/main/docs/cli-examples.md">CLI Examples</a>
+          </div>
+        </div>
+
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot"></span>
+            <span>todo-report health --repo ~/lab/cswg/coordination --branch jj --format json</span>
+          </div>
+          <pre><code>{
+  "repo": "coordination",
+  "branch": "jj",
+  "open_todos": 25,
+  "completed_todos": 5,
+  "oldest_open": "TODO-bidop",
+  "lint_errors": 2,
+  "lint_warnings": 3
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="features-title">
+      <div class="section-head">
+        <div>
+          <h2 id="features-title">Four working views of the same TODO system</h2>
+        </div>
+        <p>
+          The tool is built around three core features, with <code>health</code>
+          acting as the summary layer on top.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="card">
+          <span class="tag">Feature 1</span>
+          <h3><code>age</code></h3>
+          <p>Show how old top-level TODOs are by tracing first appearance in Git history.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Feature 2</span>
+          <h3><code>drift</code></h3>
+          <p>Compare TODO state across branches, including parent items, detail files, and subtasks.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Feature 3</span>
+          <h3><code>lint</code></h3>
+          <p>Catch malformed IDs, broken detail links, checked-parent issues, and orphaned TODO files.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Summary</span>
+          <h3><code>health</code></h3>
+          <p>Roll age, lint, and optional drift counts into one report for humans or other tools.</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="video-title">
+      <div class="section-head">
+        <div>
+          <h2 id="video-title">Demo video</h2>
+        </div>
+        <p>
+          This walkthrough uses <code>~/lab/cswg/coordination</code> and shows
+          <code>age</code>, <code>drift</code>, <code>lint</code>, and
+          <code>health</code> in action.
+        </p>
+      </div>
+
+      <div class="video-shell">
+        <video controls preload="metadata" playsinline>
+          <source src="./docs/videos/todo-report-demo.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-meta">
+          <span>Horizontal MP4 demo checked into the repo.</span>
+          <a href="./docs/videos/todo-report-demo.mp4">Open the raw video file</a>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="examples-title">
+      <div class="section-head">
+        <div>
+          <h2 id="examples-title">Example commands</h2>
+        </div>
+        <p>
+          The CLI stays readable by default, but it also exports
+          <code>markdown</code>, <code>json</code>, and <code>tsv</code>.
+        </p>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot"></span>
+          <span>examples</span>
+        </div>
+        <pre><code>todo-report age --repo ~/lab/cswg/coordination --branch jj
+todo-report drift --repo ~/lab/cswg/coordination --branch-a main --branch-b jj
+todo-report lint --repo ~/lab/cswg/coordination --branch jj --format markdown
+todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-lab.d/TODO/TODO.md --format json</code></pre>
+      </div>
+    </section>
+
+    <section aria-labelledby="links-title">
+      <div class="section-head">
+        <div>
+          <h2 id="links-title">Docs and assets</h2>
+        </div>
+        <p>
+          Everything here is checked into the repo, so the page stays aligned with the code.
+        </p>
+      </div>
+
+      <div class="link-row">
+        <a class="link-tile" href="https://github.com/computerscienceiscool/todo-report/blob/main/README.md">
+          <strong>README</strong>
+          <span>Tool overview, supported TODO styles, output formats, and command reference.</span>
+        </a>
+        <a class="link-tile" href="https://github.com/computerscienceiscool/todo-report/blob/main/docs/cli-examples.md">
+          <strong>CLI examples</strong>
+          <span>Real command lines for <code>coordination</code>, <code>wire-lab</code>, and export formats.</span>
+        </a>
+        <a class="link-tile" href="https://github.com/computerscienceiscool/todo-report/blob/main/scripts/render-demo-video.sh">
+          <strong>Render script</strong>
+          <span>The shell script used to produce the checked-in demo video.</span>
+        </a>
+      </div>
+    </section>
+
+    <p class="footer">
+      Built for local Git repos, Markdown TODO systems, and teams that want both readable reports and shell-friendly output.
+    </p>
+  </main>
+</body>
+</html>
