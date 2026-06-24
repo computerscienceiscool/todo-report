@@ -196,6 +196,24 @@ Format guidance:
 - `json`: structured export for later tooling
 - `tsv`: Unix-friendly tab-separated output for shell pipelines
 
+## Exit codes
+
+Successful commands can still return non-zero status codes when the report
+contains warnings or errors:
+
+- `0`: clean
+- `1`: warnings or differences present
+- `2`: errors present, or the command itself failed
+
+Current command behavior:
+
+- `age` and `indexes` return `0` on success
+- `detect` returns `0` for `compatible`, `1` for `compatible_with_warnings`,
+  and `2` for `unsupported`
+- `drift` returns `1` when differences are found
+- `lint`, `health`, and `fleet health` map their report status to `0`, `1`,
+  or `2`
+
 ## Lint behavior
 
 `lint` treats `TODO/TODO.md` as the source-of-truth index and also:
@@ -241,6 +259,13 @@ Fleet summary narrowed to active repos and index paths:
 
 ```bash
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/
+```
+
+Exit-code check in shell:
+
+```bash
+todo-report lint --repo ~/lab/cswg/coordination --branch jj --format text
+echo $?
 ```
 
 Export a stable JSON snapshot:

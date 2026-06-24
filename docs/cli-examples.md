@@ -197,6 +197,20 @@ todo-report fleet health \
 This is useful when the team wants one report that reads cleanly in older Gitea
 instances, GitHub, or plain Markdown viewers.
 
+Exit-code oriented shell use:
+
+```bash
+todo-report drift \
+  --repo ~/lab/cswg/coordination \
+  --branch-a main \
+  --branch-b jj \
+  --format text
+echo $?
+```
+
+This is useful when a script needs to distinguish "no branch drift" from
+"differences found" without parsing the text output.
+
 Fleet snapshot export:
 
 ```bash
@@ -223,6 +237,8 @@ release notes, or later trend analysis.
 - Repo and index filters are substring-based and case-insensitive.
 - If filters remove every discovered index in an `--all-indexes` run, the
   report stays valid and returns zero discovered indexes.
+- Exit codes are `0` for clean, `1` for warnings or differences, and `2` for
+  errors or command failures.
 - Cross-TODO references like `TODO-foo/bar` are not treated as missing subtasks
   in the current parent detail file.
 - Checkbox-style detail subtasks accept `[ ]`, `[x]`, and `[~]`, with `[~]`

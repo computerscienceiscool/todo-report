@@ -463,7 +463,8 @@
         <p>
           The CLI stays readable by default, but it also exports
           <code>markdown</code>, <code>json</code>, and <code>tsv</code>, and it
-          can narrow large runs with repo and index filters.
+          can narrow large runs with repo and index filters while returning
+          script-friendly exit codes.
         </p>
       </div>
 
@@ -481,6 +482,7 @@ todo-report health --repo ~/lab/wire-lab --branch main --all-indexes --format te
 todo-report health --repo ~/lab/cswg/coordination --branch jj --all-indexes --compare main --format text
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --format text
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/ --format text
+todo-report drift --repo ~/lab/cswg/coordination --branch-a main --branch-b jj --format text; echo $?
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet-health.json --format text
 todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-lab.d/TODO/TODO.md --format json</code></pre>
       </div>

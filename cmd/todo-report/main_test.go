@@ -123,6 +123,73 @@ func TestNormalizeFormat(t *testing.T) {
 	}
 }
 
+func TestRunWithExitCode(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		want int
+	}{
+		{
+			name: "usage error",
+			args: nil,
+			want: 2,
+		},
+		{
+			name: "indexes clean",
+			args: []string{"indexes", "--repo", sampleMultiIndexRepo(t).Dir, "--branch", "main", "--format", "text"},
+			want: 0,
+		},
+		{
+			name: "detect warnings",
+			args: []string{"detect", "--repo", sampleCLIRepo(t).Dir, "--branch", "jj", "--format", "text"},
+			want: 1,
+		},
+		{
+			name: "drift differences",
+			args: []string{"drift", "--repo", sampleCLIRepo(t).Dir, "--branch-a", "main", "--branch-b", "jj", "--format", "text"},
+			want: 1,
+		},
+		{
+			name: "lint warning",
+			args: []string{"lint", "--repo", sampleNestedIndexRepo(t).Dir, "--branch", "main", "--index", "protocols/wire-lab.d/TODO/TODO.md", "--format", "text"},
+			want: 1,
+		},
+		{
+			name: "health warning",
+			args: []string{"health", "--repo", sampleCLIRepo(t).Dir, "--branch", "jj", "--compare", "main", "--format", "text"},
+			want: 1,
+		},
+		{
+			name: "fleet error",
+			args: func() []string {
+				repo := sampleCLIRepo(t)
+				listDir := t.TempDir()
+				repoList := filepath.Join(listDir, "repos.txt")
+				content := strings.Join([]string{
+					repo.Dir,
+					filepath.Join(listDir, "missing-repo"),
+				}, "\n")
+				if err := os.WriteFile(repoList, []byte(content), 0o644); err != nil {
+					t.Fatal(err)
+				}
+				return []string{"fleet", "health", "--repo-list", repoList, "--branch", "jj", "--format", "text"}
+			}(),
+			want: 2,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			code, _ := captureStdoutAndExitCode(t, func() (int, error) {
+				return runWithExitCode(tc.args)
+			})
+			if code != tc.want {
+				t.Fatalf("expected exit code %d, got %d", tc.want, code)
+			}
+		})
+	}
+}
+
 func TestRunAgeEndToEnd(t *testing.T) {
 	repo := sampleCLIRepo(t)
 
@@ -508,4 +575,34 @@ func captureStdout(t *testing.T, fn func()) string {
 		t.Fatalf("close reader: %v", err)
 	}
 	return buf.String()
+}
+
+func captureStdoutAndExitCode(t *testing.T, fn func() (int, error)) (int, error) {
+	t.Helper()
+
+	oldStdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	os.Stdout = w
+	defer func() {
+		os.Stdout = oldStdout
+	}()
+
+	code, runErr := fn()
+
+	if err := w.Close(); err != nil {
+		t.Fatalf("close writer: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, r); err != nil {
+		t.Fatalf("read stdout: %v", err)
+	}
+	if err := r.Close(); err != nil {
+		t.Fatalf("close reader: %v", err)
+	}
+
+	return code, runErr
 }

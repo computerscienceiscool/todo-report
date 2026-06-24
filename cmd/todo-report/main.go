@@ -22,15 +22,25 @@ import (
 )
 
 func main() {
-	if err := run(os.Args[1:]); err != nil {
+	code, err := runWithExitCode(os.Args[1:])
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		if code == 0 {
+			code = 2
+		}
+		os.Exit(code)
 	}
+	os.Exit(code)
 }
 
 func run(args []string) error {
+	_, err := runWithExitCode(args)
+	return err
+}
+
+func runWithExitCode(args []string) (int, error) {
 	if len(args) == 0 {
-		return usageError()
+		return 2, usageError()
 	}
 
 	switch args[0] {
@@ -49,11 +59,11 @@ func run(args []string) error {
 	case "health":
 		return runHealth(args[1:])
 	default:
-		return usageError()
+		return 2, usageError()
 	}
 }
 
-func runAge(args []string) error {
+func runAge(args []string) (int, error) {
 	fs := flag.NewFlagSet("age", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
@@ -61,40 +71,40 @@ func runAge(args []string) error {
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
-		return err
+		return 2, err
 	}
 	formatValue, err := normalizeFormat(*format, *jsonFlag)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	if *branch == "" {
-		return errors.New("age requires --branch")
+		return 2, errors.New("age requires --branch")
 	}
 
 	repo, err := gitrepo.Open(*repoPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	snapshot, err := todo.LoadSnapshot(repo, *branch, *indexPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	records, err := age.Compute(repo, snapshot)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	out, err := report.RenderAge(records, formatValue)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	fmt.Print(out)
-	return nil
+	return 0, nil
 }
 
-func runDetect(args []string) error {
+func runDetect(args []string) (int, error) {
 	fs := flag.NewFlagSet("detect", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
@@ -106,40 +116,41 @@ func runDetect(args []string) error {
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
-		return err
+		return 2, err
 	}
 	formatValue, err := normalizeFormat(*format, *jsonFlag)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	if *branch == "" {
-		return errors.New("detect requires --branch")
+		return 2, errors.New("detect requires --branch")
 	}
 
 	repo, err := gitrepo.Open(*repoPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	resolvedIndex, err := resolveSingleIndex(repo, *branch, *indexPath, includeIndex, excludeIndex)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	snapshot, err := todo.LoadSnapshot(repo, *branch, resolvedIndex)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
-	out, err := report.RenderDetect(todo.DetectSnapshot(snapshot), formatValue)
+	detectReport := todo.DetectSnapshot(snapshot)
+	out, err := report.RenderDetect(detectReport, formatValue)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	fmt.Print(out)
-	return nil
+	return detectExitCode(detectReport.Compatibility), nil
 }
 
-func runDrift(args []string) error {
+func runDrift(args []string) (int, error) {
 	fs := flag.NewFlagSet("drift", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branchA := fs.String("branch-a", "", "left branch")
@@ -148,40 +159,43 @@ func runDrift(args []string) error {
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
-		return err
+		return 2, err
 	}
 	formatValue, err := normalizeFormat(*format, *jsonFlag)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	if *branchA == "" || *branchB == "" {
-		return errors.New("drift requires --branch-a and --branch-b")
+		return 2, errors.New("drift requires --branch-a and --branch-b")
 	}
 
 	repo, err := gitrepo.Open(*repoPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	left, err := todo.LoadSnapshot(repo, *branchA, *indexPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	right, err := todo.LoadSnapshot(repo, *branchB, *indexPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	result := drift.Compare(left, right)
 	out, err := report.RenderDrift(result, formatValue)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	fmt.Print(out)
-	return nil
+	if result.TotalDifferenceRows > 0 {
+		return 1, nil
+	}
+	return 0, nil
 }
 
-func runLint(args []string) error {
+func runLint(args []string) (int, error) {
 	fs := flag.NewFlagSet("lint", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
@@ -189,36 +203,36 @@ func runLint(args []string) error {
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
-		return err
+		return 2, err
 	}
 	formatValue, err := normalizeFormat(*format, *jsonFlag)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	if *branch == "" {
-		return errors.New("lint requires --branch")
+		return 2, errors.New("lint requires --branch")
 	}
 
 	repo, err := gitrepo.Open(*repoPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	snapshot, err := todo.LoadSnapshot(repo, *branch, *indexPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	findings := lint.Run(snapshot)
 	out, err := report.RenderLint(snapshot, findings, formatValue)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	fmt.Print(out)
-	return nil
+	return lintExitCode(findings), nil
 }
 
-func runIndexes(args []string) error {
+func runIndexes(args []string) (int, error) {
 	fs := flag.NewFlagSet("indexes", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
@@ -229,36 +243,36 @@ func runIndexes(args []string) error {
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
-		return err
+		return 2, err
 	}
 	formatValue, err := normalizeFormat(*format, *jsonFlag)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	if *branch == "" {
-		return errors.New("indexes requires --branch")
+		return 2, errors.New("indexes requires --branch")
 	}
 
 	repo, err := gitrepo.Open(*repoPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	indexes, err := todo.DiscoverIndexes(repo, *branch)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	indexes = filterIndexes(indexes, includeIndex, excludeIndex)
 
 	out, err := report.RenderIndexes(indexes, formatValue)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	fmt.Print(out)
-	return nil
+	return 0, nil
 }
 
-func runHealth(args []string) error {
+func runHealth(args []string) (int, error) {
 	fs := flag.NewFlagSet("health", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
@@ -273,74 +287,74 @@ func runHealth(args []string) error {
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	compare := fs.String("compare", "", "optional branch to compare against")
 	if err := fs.Parse(args); err != nil {
-		return err
+		return 2, err
 	}
 	formatValue, err := normalizeFormat(*format, *jsonFlag)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	if *branch == "" {
-		return errors.New("health requires --branch")
+		return 2, errors.New("health requires --branch")
 	}
 
 	repo, err := gitrepo.Open(*repoPath)
 	if err != nil {
-		return err
+		return 2, err
 	}
 
 	if *allIndexes {
 		multiReport, err := loadMultiHealthReport(repo, *branch, *compare, includeIndex, excludeIndex)
 		if err != nil {
-			return err
+			return 2, err
 		}
 		if *writeJSON != "" {
 			if err := writeJSONFile(*writeJSON, multiReport); err != nil {
-				return err
+				return 2, err
 			}
 		}
 		out, err := report.RenderMultiHealth(multiReport, formatValue)
 		if err != nil {
-			return err
+			return 2, err
 		}
 		fmt.Print(out)
-		return nil
+		return statusExitCode(multiReport.Status), nil
 	}
 
 	resolvedIndex, err := resolveSingleIndex(repo, *branch, *indexPath, includeIndex, excludeIndex)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	reportData, err := loadHealthReport(repo, *branch, resolvedIndex, *compare)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	if *writeJSON != "" {
 		if err := writeJSONFile(*writeJSON, reportData); err != nil {
-			return err
+			return 2, err
 		}
 	}
 
 	out, err := report.RenderHealth(reportData, formatValue)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	fmt.Print(out)
-	return nil
+	return statusExitCode(reportData.Status), nil
 }
 
-func runFleet(args []string) error {
+func runFleet(args []string) (int, error) {
 	if len(args) == 0 {
-		return errors.New("fleet requires a subcommand")
+		return 2, errors.New("fleet requires a subcommand")
 	}
 	switch args[0] {
 	case "health":
 		return runFleetHealth(args[1:])
 	default:
-		return fmt.Errorf("unsupported fleet subcommand %q", args[0])
+		return 2, fmt.Errorf("unsupported fleet subcommand %q", args[0])
 	}
 }
 
-func runFleetHealth(args []string) error {
+func runFleetHealth(args []string) (int, error) {
 	fs := flag.NewFlagSet("fleet health", flag.ContinueOnError)
 	repoList := fs.String("repo-list", "", "path to a newline-delimited repo list")
 	includeRepo := multiStringFlag{}
@@ -359,22 +373,22 @@ func runFleetHealth(args []string) error {
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	compare := fs.String("compare", "", "optional branch to compare against")
 	if err := fs.Parse(args); err != nil {
-		return err
+		return 2, err
 	}
 	formatValue, err := normalizeFormat(*format, *jsonFlag)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	if *repoList == "" {
-		return errors.New("fleet health requires --repo-list")
+		return 2, errors.New("fleet health requires --repo-list")
 	}
 	if *branch == "" {
-		return errors.New("fleet health requires --branch")
+		return 2, errors.New("fleet health requires --branch")
 	}
 
 	repos, err := fleetcalc.LoadRepoList(*repoList)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	repos = fleetcalc.FilterRepoPaths(repos, includeRepo, excludeRepo)
 	entries := make([]model.FleetHealthEntry, 0, len(repos))
@@ -451,15 +465,15 @@ func runFleetHealth(args []string) error {
 	fleetReport := fleetcalc.BuildHealthReport(*branch, *compare, *repoList, entries)
 	if *writeJSON != "" {
 		if err := writeJSONFile(*writeJSON, fleetReport); err != nil {
-			return err
+			return 2, err
 		}
 	}
 	out, err := report.RenderFleetHealth(fleetReport, formatValue)
 	if err != nil {
-		return err
+		return 2, err
 	}
 	fmt.Print(out)
-	return nil
+	return statusExitCode(fleetReport.Status), nil
 }
 
 func usageError() error {
@@ -599,6 +613,41 @@ func writeJSONFile(path string, value any) error {
 		return fmt.Errorf("write json file %s: %w", path, err)
 	}
 	return nil
+}
+
+func statusExitCode(status string) int {
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "error":
+		return 2
+	case "warning":
+		return 1
+	default:
+		return 0
+	}
+}
+
+func lintExitCode(findings []model.LintFinding) int {
+	code := 0
+	for _, finding := range findings {
+		switch strings.ToLower(finding.Severity) {
+		case "error":
+			return 2
+		case "warning":
+			code = 1
+		}
+	}
+	return code
+}
+
+func detectExitCode(compatibility string) int {
+	switch strings.ToLower(strings.TrimSpace(compatibility)) {
+	case "unsupported":
+		return 2
+	case "compatible_with_warnings":
+		return 1
+	default:
+		return 0
+	}
 }
 
 type multiStringFlag []string
