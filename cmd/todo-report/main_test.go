@@ -182,6 +182,25 @@ func TestRunHealthEndToEnd(t *testing.T) {
 	}
 }
 
+func TestRunHealthWritesJSONSnapshot(t *testing.T) {
+	repo := sampleCLIRepo(t)
+	outFile := filepath.Join(t.TempDir(), "health.json")
+
+	if err := run([]string{"health", "--repo", repo.Dir, "--branch", "jj", "--compare", "main", "--write-json", outFile, "--format", "text"}); err != nil {
+		t.Fatalf("run health: %v", err)
+	}
+
+	data, err := os.ReadFile(outFile)
+	if err != nil {
+		t.Fatalf("read snapshot: %v", err)
+	}
+	for _, want := range []string{`"repo": "001"`, `"branch": "jj"`, `"compare_branch": "main"`, `"total_difference_rows": 3`} {
+		if !strings.Contains(string(data), want) {
+			t.Fatalf("expected %q in %q", want, string(data))
+		}
+	}
+}
+
 func TestRunIndexesEndToEnd(t *testing.T) {
 	repo := sampleMultiIndexRepo(t)
 
@@ -267,6 +286,35 @@ func TestRunFleetHealthEndToEnd(t *testing.T) {
 	for _, want := range []string{"Repo list:", "Repos: 3", "Successful repos: 2", "Repo errors: 1", "mode=all-indexes", "missing-repo"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunFleetHealthWritesJSONSnapshot(t *testing.T) {
+	repoA := sampleCLIRepo(t)
+	repoB := sampleMultiIndexCompareRepo(t)
+	listDir := t.TempDir()
+	repoList := filepath.Join(listDir, "repos.txt")
+	outFile := filepath.Join(listDir, "fleet.json")
+	content := strings.Join([]string{
+		repoA.Dir,
+		repoB.Dir,
+	}, "\n")
+	if err := os.WriteFile(repoList, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := run([]string{"fleet", "health", "--repo-list", repoList, "--branch", "main", "--all-indexes", "--compare", "jj", "--write-json", outFile, "--format", "text"}); err != nil {
+		t.Fatalf("run fleet health: %v", err)
+	}
+
+	data, err := os.ReadFile(outFile)
+	if err != nil {
+		t.Fatalf("read fleet snapshot: %v", err)
+	}
+	for _, want := range []string{`"repo_count": 2`, `"compare_branch": "jj"`, `"entries": [`, `"multi_health": {`} {
+		if !strings.Contains(string(data), want) {
+			t.Fatalf("expected %q in %q", want, string(data))
 		}
 	}
 }

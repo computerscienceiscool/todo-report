@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -211,6 +212,7 @@ func runHealth(args []string) error {
 	branch := fs.String("branch", "", "branch to inspect")
 	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
 	allIndexes := fs.Bool("all-indexes", false, "discover all TODO/TODO.md indexes and summarize them together")
+	writeJSON := fs.String("write-json", "", "optional path to write the structured health report as JSON")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	compare := fs.String("compare", "", "optional branch to compare against")
@@ -235,6 +237,11 @@ func runHealth(args []string) error {
 		if err != nil {
 			return err
 		}
+		if *writeJSON != "" {
+			if err := writeJSONFile(*writeJSON, multiReport); err != nil {
+				return err
+			}
+		}
 		out, err := report.RenderMultiHealth(multiReport, formatValue)
 		if err != nil {
 			return err
@@ -246,6 +253,11 @@ func runHealth(args []string) error {
 	reportData, err := loadHealthReport(repo, *branch, *indexPath, *compare)
 	if err != nil {
 		return err
+	}
+	if *writeJSON != "" {
+		if err := writeJSONFile(*writeJSON, reportData); err != nil {
+			return err
+		}
 	}
 
 	out, err := report.RenderHealth(reportData, formatValue)
@@ -274,6 +286,7 @@ func runFleetHealth(args []string) error {
 	branch := fs.String("branch", "", "branch to inspect")
 	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
 	allIndexes := fs.Bool("all-indexes", false, "discover all TODO/TODO.md indexes per repo and summarize them together")
+	writeJSON := fs.String("write-json", "", "optional path to write the structured fleet report as JSON")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	compare := fs.String("compare", "", "optional branch to compare against")
@@ -359,7 +372,13 @@ func runFleetHealth(args []string) error {
 		entries = append(entries, entry)
 	}
 
-	out, err := report.RenderFleetHealth(fleetcalc.BuildHealthReport(*branch, *compare, *repoList, entries), formatValue)
+	fleetReport := fleetcalc.BuildHealthReport(*branch, *compare, *repoList, entries)
+	if *writeJSON != "" {
+		if err := writeJSONFile(*writeJSON, fleetReport); err != nil {
+			return err
+		}
+	}
+	out, err := report.RenderFleetHealth(fleetReport, formatValue)
 	if err != nil {
 		return err
 	}
@@ -487,4 +506,16 @@ func boolToInt(v bool) int {
 		return 1
 	}
 	return 0
+}
+
+func writeJSONFile(path string, value any) error {
+	data, err := json.MarshalIndent(value, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal json for %s: %w", path, err)
+	}
+	data = append(data, '\n')
+	if err := os.WriteFile(path, data, 0o644); err != nil {
+		return fmt.Errorf("write json file %s: %w", path, err)
+	}
+	return nil
 }

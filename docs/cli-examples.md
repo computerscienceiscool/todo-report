@@ -53,6 +53,20 @@ todo-report health --repo ~/lab/cswg/coordination --branch jj --format text
 This is useful when the team wants a concise narrative summary with status,
 top finding types, and the oldest open TODOs in one screenful.
 
+### Health snapshot export
+
+```bash
+todo-report health \
+  --repo ~/lab/cswg/coordination \
+  --branch jj \
+  --compare main \
+  --write-json coordination-health.json \
+  --format text
+```
+
+This is useful when the team wants a checked-in JSON artifact to diff later
+without giving up the normal terminal summary.
+
 ## Nested index example
 
 `wire-lab` keeps its active master queue under a nested path, so it needs
@@ -142,6 +156,20 @@ todo-report fleet health \
 
 This is useful when a team wants repo-by-repo drift counts across a set of
 working branches.
+
+Fleet snapshot export:
+
+```bash
+todo-report fleet health \
+  --repo-list repos.txt \
+  --branch main \
+  --all-indexes \
+  --write-json fleet-health.json \
+  --format text
+```
+
+This is useful when the team wants a stable JSON snapshot for Git history,
+release notes, or later trend analysis.
 
 ## Known limitations
 

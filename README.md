@@ -25,6 +25,8 @@ For monorepos, `indexes` discovers every authoritative `TODO/TODO.md` in the
 selected branch, and `health --all-indexes` rolls them into a repo-wide summary.
 For many repos, `fleet health --repo-list repos.txt` rolls those per-repo
 summaries into a single portfolio view.
+Use `--write-json report.json` on `health` or `fleet health` to save a stable
+JSON snapshot that teams can commit, archive, and diff later.
 
 ## PromiseGrid relationship
 
@@ -135,6 +137,7 @@ todo-report health --repo /path/to/repo --branch main
 todo-report health --repo /path/to/repo --branch main --compare jj
 todo-report health --repo /path/to/repo --branch main --all-indexes
 todo-report health --repo /path/to/repo --branch main --all-indexes --compare jj
+todo-report health --repo /path/to/repo --branch main --write-json health.json
 ```
 
 Summarizes repo TODO health and can optionally include branch drift counts.
@@ -149,6 +152,7 @@ repo-wide drift and branch-only index lists are added for the comparison.
 todo-report fleet health --repo-list repos.txt --branch main
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --compare jj
+todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet.json
 ```
 
 Reads a newline-delimited repo list and produces a fleet-wide health report.
@@ -212,6 +216,12 @@ Fleet summary across many repos:
 
 ```bash
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes
+```
+
+Export a stable JSON snapshot:
+
+```bash
+todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet-health.json
 ```
 
 Markdown report for GitHub:
