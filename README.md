@@ -4,6 +4,22 @@
 It is branch-aware, local-first, read-only, and designed as a pipes-and-filters
 tool with human-readable output by default.
 
+## TL;DR
+
+`todo-report` helps a team answer four questions about TODOs:
+
+- how old is the work?
+- how does it differ across branches?
+- is the TODO structure valid?
+- what is the overall health of this repo, monorepo, or fleet?
+
+## Where to start
+
+- demo flow: [docs/demo-script.md](docs/demo-script.md)
+- command examples: [docs/cli-examples.md](docs/cli-examples.md)
+- supported TODO dialects: [docs/supported-styles.md](docs/supported-styles.md)
+- FAQ: [docs/faq.md](docs/faq.md)
+
 ## What it does
 
 The tool has three main features:
@@ -318,6 +334,12 @@ todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-la
 ```
 
 More concrete examples live in [docs/cli-examples.md](docs/cli-examples.md).
+
+Supported style details live in [docs/supported-styles.md](docs/supported-styles.md).
+
+The team-demo walkthrough lives in [docs/demo-script.md](docs/demo-script.md).
+
+Common questions are collected in [docs/faq.md](docs/faq.md).
 
 ## Demo video
 

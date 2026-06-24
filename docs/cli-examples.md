@@ -2,6 +2,8 @@
 
 This file records real-world example invocations for `todo-report`.
 
+For a team walkthrough, start with [demo-script.md](demo-script.md).
+
 Unless otherwise noted, `age` currently reports all top-level TODOs found in
 the selected branch, not only open ones.
 

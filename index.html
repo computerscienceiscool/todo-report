@@ -371,6 +371,7 @@
             <a class="button" href="./docs/videos/todo-report-demo.mp4">Watch Demo Video</a>
             <a class="button secondary" href="https://github.com/computerscienceiscool/todo-report">View Source</a>
             <a class="button secondary" href="https://github.com/computerscienceiscool/todo-report/blob/main/README.md">Read README</a>
+            <a class="button secondary" href="https://github.com/computerscienceiscool/todo-report/blob/main/docs/demo-script.md">Demo Script</a>
             <a class="button secondary" href="https://github.com/computerscienceiscool/todo-report/blob/main/docs/cli-examples.md">CLI Examples</a>
           </div>
         </div>
@@ -428,6 +429,66 @@
           <h3><code>health</code></h3>
           <p>Roll age, lint, and optional drift counts into one report for humans or other tools.</p>
         </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="modes-title">
+      <div class="section-head">
+        <div>
+          <h2 id="modes-title">One tool, three scopes</h2>
+        </div>
+        <p>
+          The same command family works at the repo, monorepo, and fleet levels.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="card">
+          <span class="tag">Single Repo</span>
+          <h3><code>health</code></h3>
+          <p>Use this for one queue rooted at <code>TODO/TODO.md</code> or an explicit <code>--index</code> path.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Monorepo</span>
+          <h3><code>indexes</code></h3>
+          <p>Discover multiple authoritative TODO roots and summarize them with <code>health --all-indexes</code>.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Fleet</span>
+          <h3><code>fleet health</code></h3>
+          <p>Roll many repos together from <code>--repo-list</code> or repeated <code>--repo</code> flags.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Compatibility</span>
+          <h3><code>detect</code></h3>
+          <p>Inspect a repo’s TODO dialect before adopting the tool or tightening lint expectations.</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="styles-title">
+      <div class="section-head">
+        <div>
+          <h2 id="styles-title">Supported TODO styles</h2>
+        </div>
+        <p>
+          The parser supports mixed real-world team styles rather than assuming one perfect format.
+        </p>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot"></span>
+          <span>top-level examples</span>
+        </div>
+        <pre><code>TODO-binap
+jirin
+001
+S122
+026-planning-group-workspace-mvp.md</code></pre>
       </div>
     </section>
 
@@ -507,6 +568,18 @@ todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-la
         <a class="link-tile" href="https://github.com/computerscienceiscool/todo-report/blob/main/docs/cli-examples.md">
           <strong>CLI examples</strong>
           <span>Real command lines for <code>coordination</code>, <code>wire-lab</code>, and export formats.</span>
+        </a>
+        <a class="link-tile" href="https://github.com/computerscienceiscool/todo-report/blob/main/docs/demo-script.md">
+          <strong>Demo script</strong>
+          <span>A copy-paste walkthrough for showing the tool to a team.</span>
+        </a>
+        <a class="link-tile" href="https://github.com/computerscienceiscool/todo-report/blob/main/docs/supported-styles.md">
+          <strong>Supported styles</strong>
+          <span>The current top-level ID styles, detail-file conventions, and linted consistency rules.</span>
+        </a>
+        <a class="link-tile" href="https://github.com/computerscienceiscool/todo-report/blob/main/docs/faq.md">
+          <strong>FAQ</strong>
+          <span>Short answers about scope, branch awareness, fleet mode, detect, and exit codes.</span>
         </a>
         <a class="link-tile" href="https://github.com/computerscienceiscool/todo-report/blob/main/scripts/render-demo-video.sh">
           <strong>Render script</strong>
