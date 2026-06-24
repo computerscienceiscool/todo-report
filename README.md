@@ -30,6 +30,8 @@ Use `--write-json report.json` on `health` or `fleet health` to save a stable
 JSON snapshot that teams can commit, archive, and diff later.
 Use repo and index filters to narrow large runs without editing the underlying
 repo list or TODO files.
+The test suite now includes fixture repos that mirror the mixed TODO styles
+seen in real team repos so compatibility regressions are easier to catch.
 
 ## PromiseGrid relationship
 

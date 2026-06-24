@@ -238,6 +238,26 @@ func TestRunDetectWithIndexFilter(t *testing.T) {
 	}
 }
 
+func TestRunDetectRealPatternRepo(t *testing.T) {
+	repo := sampleRealPatternRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"detect", "--repo", repo.Dir, "--branch", "main", "--format", "text"}); err != nil {
+			t.Fatalf("run detect real pattern repo: %v", err)
+		}
+	})
+
+	for _, want := range []string{
+		"Compatibility: COMPATIBLE_WITH_WARNINGS",
+		"Top-level ID styles: bare_proquint, filename_stem, numeric_legacy, proquint",
+		"Subtask ID styles: numeric_dotted, parent_prefixed_dotted",
+	} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
 func TestRunDriftEndToEnd(t *testing.T) {
 	repo := sampleCLIRepo(t)
 
@@ -394,6 +414,22 @@ func TestRunLintWithNestedIndexEndToEnd(t *testing.T) {
 
 	if !strings.Contains(out, "WARNING orphan_detail_file") {
 		t.Fatalf("expected orphan detail warning in %q", out)
+	}
+}
+
+func TestRunLintRealPatternRepoEndToEnd(t *testing.T) {
+	repo := sampleRealPatternRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"lint", "--repo", repo.Dir, "--branch", "main", "--format", "text"}); err != nil {
+			t.Fatalf("run lint real pattern repo: %v", err)
+		}
+	})
+
+	for _, want := range []string{"WARNING index_open_detail_complete", "WARNING index_done_detail_open"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
 	}
 }
 
@@ -587,6 +623,21 @@ func sampleMultiIndexCompareRepo(t *testing.T) *testrepo.Repo {
 	repo.Write("simulations/SIM-beta/TODO/TODO.md", "# TODO Index\n\n- [ ] TODO-beta - Beta task (`simulations/SIM-beta/TODO/TODO-beta.md`)\n")
 	repo.Write("simulations/SIM-beta/TODO/TODO-beta.md", "# TODO-beta\n\n- [ ] beta.1 Beta subtask\n")
 	repo.Commit("Diverge multi indexes", "2026-01-02T00:00:00Z")
+
+	return repo
+}
+
+func sampleRealPatternRepo(t *testing.T) *testrepo.Repo {
+	t.Helper()
+
+	repo := testrepo.New(t)
+	repo.Write("TODO/TODO.md", "# Storm TODO\n\n## Bugs\n\n- [ ] TODO-fogus - Prefixed proquint (`TODO/TODO-fogus.md`)\n- [ ] jirin - Bare proquint (`TODO/TODO-jirin.md`)\n- [ ] 001 - Numeric legacy (`TODO/001-numeric-legacy.md`)\n  - Uses legacy numbering in the same index\n\n## Features\n\n- [x] 014-change-review-gate.md Change review gate rollout\n  - Side-by-side diffs in UI before writing\n- [ ] 026-planning-group-workspace-mvp.md Planning group workspace tool MVP (shared docs, decisions, collaboration)\n")
+	repo.Write("TODO/TODO-fogus.md", "# TODO-fogus\n\n- [ ] fogus.1 Open subtask\n")
+	repo.Write("TODO/TODO-jirin.md", "# TODO-jirin\n\n## Status\n\nImplemented.\n\n- [x] jirin.1 Done subtask\n")
+	repo.Write("TODO/001-numeric-legacy.md", "# TODO-001\n\n- [ ] 001.1 Open subtask\n")
+	repo.Write("TODO/014-change-review-gate.md", "# TODO-014\n\n- [ ] 014.1 Open subtask\n- [x] 014.2 Done subtask\n")
+	repo.Write("TODO/026-planning-group-workspace-mvp.md", "# TODO-026\n\n- [ ] 026.1 Shared docs baseline\n")
+	repo.Commit("Seed real-pattern repo", "2026-01-01T00:00:00Z")
 
 	return repo
 }
