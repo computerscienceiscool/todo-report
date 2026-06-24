@@ -84,6 +84,24 @@ func BuildHealthReport(branch, compareBranch, repoListFile string, entries []mod
 	return report
 }
 
+func FilterRepoPaths(repos, include, exclude []string) []string {
+	if len(include) == 0 && len(exclude) == 0 {
+		return repos
+	}
+
+	var filtered []string
+	for _, repo := range repos {
+		if !matchesAny(repo, include) && len(include) > 0 {
+			continue
+		}
+		if matchesAny(repo, exclude) {
+			continue
+		}
+		filtered = append(filtered, repo)
+	}
+	return filtered
+}
+
 func resolveRepoPath(baseDir, raw string) (string, error) {
 	if strings.HasPrefix(raw, "~/") || raw == "~" {
 		home, err := os.UserHomeDir()
@@ -104,4 +122,20 @@ func resolveRepoPath(baseDir, raw string) (string, error) {
 		return "", fmt.Errorf("resolve repo path %q: %w", raw, err)
 	}
 	return abs, nil
+}
+
+func matchesAny(value string, filters []string) bool {
+	if len(filters) == 0 {
+		return false
+	}
+	value = strings.ToLower(value)
+	for _, filter := range filters {
+		if filter == "" {
+			continue
+		}
+		if strings.Contains(value, strings.ToLower(filter)) {
+			return true
+		}
+	}
+	return false
 }

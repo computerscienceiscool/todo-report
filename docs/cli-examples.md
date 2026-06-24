@@ -94,6 +94,16 @@ todo-report indexes \
   --format text
 ```
 
+Limit discovery to one family of indexes:
+
+```bash
+todo-report indexes \
+  --repo ~/lab/wire-lab \
+  --branch main \
+  --include-index SIM-beta \
+  --format text
+```
+
 Summarize all discovered indexes together:
 
 ```bash
@@ -157,6 +167,23 @@ todo-report fleet health \
 This is useful when a team wants repo-by-repo drift counts across a set of
 working branches.
 
+Fleet run with repo and index filters:
+
+```bash
+todo-report fleet health \
+  --repo-list repos.txt \
+  --branch main \
+  --all-indexes \
+  --include-repo wire-lab \
+  --exclude-repo archive \
+  --include-index protocols/ \
+  --exclude-index retired/ \
+  --format text
+```
+
+This is useful when the repo list is broad but the team only wants active repos
+and active TODO trees in the current report.
+
 Portable fleet Markdown:
 
 ```bash
@@ -193,6 +220,9 @@ release notes, or later trend analysis.
   the comparison branch.
 - `fleet health` currently supports repo lists through `--repo-list`; it does
   not yet support inline repeated `--repo` flags.
+- Repo and index filters are substring-based and case-insensitive.
+- If filters remove every discovered index in an `--all-indexes` run, the
+  report stays valid and returns zero discovered indexes.
 - Cross-TODO references like `TODO-foo/bar` are not treated as missing subtasks
   in the current parent detail file.
 - Checkbox-style detail subtasks accept `[ ]`, `[x]`, and `[~]`, with `[~]`

@@ -27,6 +27,8 @@ For many repos, `fleet health --repo-list repos.txt` rolls those per-repo
 summaries into a single portfolio view.
 Use `--write-json report.json` on `health` or `fleet health` to save a stable
 JSON snapshot that teams can commit, archive, and diff later.
+Use repo and index filters to narrow large runs without editing the underlying
+repo list or TODO files.
 
 ## PromiseGrid relationship
 
@@ -118,6 +120,7 @@ Compares TODO state across two branches.
 
 ```bash
 todo-report indexes --repo /path/to/repo --branch main
+todo-report indexes --repo /path/to/repo --branch main --include-index SIM-beta
 ```
 
 Discovers root and nested `TODO/TODO.md` indexes on the selected branch.
@@ -137,6 +140,7 @@ todo-report health --repo /path/to/repo --branch main
 todo-report health --repo /path/to/repo --branch main --compare jj
 todo-report health --repo /path/to/repo --branch main --all-indexes
 todo-report health --repo /path/to/repo --branch main --all-indexes --compare jj
+todo-report health --repo /path/to/repo --branch main --all-indexes --include-index protocols/
 todo-report health --repo /path/to/repo --branch main --write-json health.json
 ```
 
@@ -152,12 +156,27 @@ repo-wide drift and branch-only index lists are added for the comparison.
 todo-report fleet health --repo-list repos.txt --branch main
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --compare jj
+todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet.json
 ```
 
 Reads a newline-delimited repo list and produces a fleet-wide health report.
 Each repo is processed independently, so one broken repo path or one bad branch
 does not abort the whole fleet run.
+
+## Filtering
+
+Filtering is substring-based and case-insensitive.
+
+- `--include-repo` keeps only matching repo paths in `fleet health`
+- `--exclude-repo` removes matching repo paths in `fleet health`
+- `--include-index` keeps only matching index paths in `indexes`, `detect`,
+  `health`, and `fleet health`
+- `--exclude-index` removes matching index paths in those same commands
+
+If an include/exclude filter removes every discovered index in an `--all-indexes`
+run, the result is a zero-index clean report. If a single explicit `--index`
+path is filtered out, the command returns an error so the mismatch is visible.
 
 ## Output formats
 
@@ -216,6 +235,12 @@ Fleet summary across many repos:
 
 ```bash
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes
+```
+
+Fleet summary narrowed to active repos and index paths:
+
+```bash
+todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/
 ```
 
 Export a stable JSON snapshot:

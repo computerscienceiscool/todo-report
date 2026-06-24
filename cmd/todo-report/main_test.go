@@ -155,6 +155,22 @@ func TestRunDetectEndToEnd(t *testing.T) {
 	}
 }
 
+func TestRunDetectWithIndexFilter(t *testing.T) {
+	repo := sampleMultiIndexRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"detect", "--repo", repo.Dir, "--branch", "main", "--index", "protocols/wire-lab.d/TODO/TODO.md", "--include-index", "wire-lab.d", "--format", "text"}); err != nil {
+			t.Fatalf("run detect: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Index: protocols/wire-lab.d/TODO/TODO.md", "Index layouts: markdown_table_rows"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
 func TestRunDriftEndToEnd(t *testing.T) {
 	repo := sampleCLIRepo(t)
 
@@ -238,6 +254,20 @@ func TestRunIndexesEndToEnd(t *testing.T) {
 	}
 }
 
+func TestRunIndexesWithFiltersEndToEnd(t *testing.T) {
+	repo := sampleMultiIndexCompareRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"indexes", "--repo", repo.Dir, "--branch", "jj", "--include-index", "SIM-beta", "--format", "text"}); err != nil {
+			t.Fatalf("run indexes: %v", err)
+		}
+	})
+
+	if strings.TrimSpace(out) != "simulations/SIM-beta/TODO/TODO.md" {
+		t.Fatalf("unexpected filtered index output %q", out)
+	}
+}
+
 func TestRunHealthAllIndexesEndToEnd(t *testing.T) {
 	repo := sampleMultiIndexRepo(t)
 
@@ -248,6 +278,22 @@ func TestRunHealthAllIndexesEndToEnd(t *testing.T) {
 	})
 
 	for _, want := range []string{"Discovered indexes: 2", "Index summaries:", "protocols/wire-lab.d/TODO/TODO.md"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunHealthAllIndexesWithFilterEndToEnd(t *testing.T) {
+	repo := sampleMultiIndexCompareRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"health", "--repo", repo.Dir, "--branch", "jj", "--all-indexes", "--include-index", "SIM-beta", "--format", "text"}); err != nil {
+			t.Fatalf("run health all indexes: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Discovered indexes: 1", "simulations/SIM-beta/TODO/TODO.md"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("expected %q in %q", want, out)
 		}
@@ -308,6 +354,35 @@ func TestRunFleetHealthEndToEnd(t *testing.T) {
 		if !strings.Contains(out, want) {
 			t.Fatalf("expected %q in %q", want, out)
 		}
+	}
+}
+
+func TestRunFleetHealthWithRepoAndIndexFilters(t *testing.T) {
+	repoA := sampleCLIRepo(t)
+	repoB := sampleMultiIndexCompareRepo(t)
+	listDir := t.TempDir()
+	repoList := filepath.Join(listDir, "repos.txt")
+	content := strings.Join([]string{
+		repoA.Dir,
+		repoB.Dir,
+	}, "\n")
+	if err := os.WriteFile(repoList, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"fleet", "health", "--repo-list", repoList, "--branch", "jj", "--all-indexes", "--include-repo", filepath.Base(repoB.Dir), "--include-index", "SIM-beta", "--format", "text"}); err != nil {
+			t.Fatalf("run fleet health: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Repos: 1", "indexes=1", "mode=all-indexes"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+	if strings.Contains(out, filepath.Base(repoA.Dir)) {
+		t.Fatalf("expected repoA to be filtered out in %q", out)
 	}
 }
 

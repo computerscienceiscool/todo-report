@@ -99,6 +99,10 @@ func runDetect(args []string) error {
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
 	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
+	includeIndex := multiStringFlag{}
+	excludeIndex := multiStringFlag{}
+	fs.Var(&includeIndex, "include-index", "substring filter for discovered index paths; may be repeated")
+	fs.Var(&excludeIndex, "exclude-index", "substring filter for discovered index paths; may be repeated")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
@@ -117,7 +121,12 @@ func runDetect(args []string) error {
 		return err
 	}
 
-	snapshot, err := todo.LoadSnapshot(repo, *branch, *indexPath)
+	resolvedIndex, err := resolveSingleIndex(repo, *branch, *indexPath, includeIndex, excludeIndex)
+	if err != nil {
+		return err
+	}
+
+	snapshot, err := todo.LoadSnapshot(repo, *branch, resolvedIndex)
 	if err != nil {
 		return err
 	}
@@ -213,6 +222,10 @@ func runIndexes(args []string) error {
 	fs := flag.NewFlagSet("indexes", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
+	includeIndex := multiStringFlag{}
+	excludeIndex := multiStringFlag{}
+	fs.Var(&includeIndex, "include-index", "substring filter for discovered index paths; may be repeated")
+	fs.Var(&excludeIndex, "exclude-index", "substring filter for discovered index paths; may be repeated")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
@@ -235,6 +248,7 @@ func runIndexes(args []string) error {
 	if err != nil {
 		return err
 	}
+	indexes = filterIndexes(indexes, includeIndex, excludeIndex)
 
 	out, err := report.RenderIndexes(indexes, formatValue)
 	if err != nil {
@@ -250,6 +264,10 @@ func runHealth(args []string) error {
 	branch := fs.String("branch", "", "branch to inspect")
 	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
 	allIndexes := fs.Bool("all-indexes", false, "discover all TODO/TODO.md indexes and summarize them together")
+	includeIndex := multiStringFlag{}
+	excludeIndex := multiStringFlag{}
+	fs.Var(&includeIndex, "include-index", "substring filter for discovered index paths; may be repeated")
+	fs.Var(&excludeIndex, "exclude-index", "substring filter for discovered index paths; may be repeated")
 	writeJSON := fs.String("write-json", "", "optional path to write the structured health report as JSON")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
@@ -271,7 +289,7 @@ func runHealth(args []string) error {
 	}
 
 	if *allIndexes {
-		multiReport, err := loadMultiHealthReport(repo, *branch, *compare)
+		multiReport, err := loadMultiHealthReport(repo, *branch, *compare, includeIndex, excludeIndex)
 		if err != nil {
 			return err
 		}
@@ -288,7 +306,11 @@ func runHealth(args []string) error {
 		return nil
 	}
 
-	reportData, err := loadHealthReport(repo, *branch, *indexPath, *compare)
+	resolvedIndex, err := resolveSingleIndex(repo, *branch, *indexPath, includeIndex, excludeIndex)
+	if err != nil {
+		return err
+	}
+	reportData, err := loadHealthReport(repo, *branch, resolvedIndex, *compare)
 	if err != nil {
 		return err
 	}
@@ -321,9 +343,17 @@ func runFleet(args []string) error {
 func runFleetHealth(args []string) error {
 	fs := flag.NewFlagSet("fleet health", flag.ContinueOnError)
 	repoList := fs.String("repo-list", "", "path to a newline-delimited repo list")
+	includeRepo := multiStringFlag{}
+	excludeRepo := multiStringFlag{}
+	includeIndex := multiStringFlag{}
+	excludeIndex := multiStringFlag{}
+	fs.Var(&includeRepo, "include-repo", "substring filter for repo paths or names; may be repeated")
+	fs.Var(&excludeRepo, "exclude-repo", "substring filter for repo paths or names; may be repeated")
 	branch := fs.String("branch", "", "branch to inspect")
 	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
 	allIndexes := fs.Bool("all-indexes", false, "discover all TODO/TODO.md indexes per repo and summarize them together")
+	fs.Var(&includeIndex, "include-index", "substring filter for discovered index paths; may be repeated")
+	fs.Var(&excludeIndex, "exclude-index", "substring filter for discovered index paths; may be repeated")
 	writeJSON := fs.String("write-json", "", "optional path to write the structured fleet report as JSON")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
@@ -346,6 +376,7 @@ func runFleetHealth(args []string) error {
 	if err != nil {
 		return err
 	}
+	repos = fleetcalc.FilterRepoPaths(repos, includeRepo, excludeRepo)
 	entries := make([]model.FleetHealthEntry, 0, len(repos))
 	for _, repoPath := range repos {
 		entry := model.FleetHealthEntry{
@@ -368,7 +399,7 @@ func runFleetHealth(args []string) error {
 		entry.Repo = repo.Name
 
 		if *allIndexes {
-			multiReport, err := loadMultiHealthReport(repo, *branch, *compare)
+			multiReport, err := loadMultiHealthReport(repo, *branch, *compare, includeIndex, excludeIndex)
 			if err != nil {
 				entry.Status = "error"
 				entry.Error = err.Error()
@@ -389,7 +420,14 @@ func runFleetHealth(args []string) error {
 			continue
 		}
 
-		healthReport, err := loadHealthReport(repo, *branch, *indexPath, *compare)
+		resolvedIndex, err := resolveSingleIndex(repo, *branch, *indexPath, includeIndex, excludeIndex)
+		if err != nil {
+			entry.Status = "error"
+			entry.Error = err.Error()
+			entries = append(entries, entry)
+			continue
+		}
+		healthReport, err := loadHealthReport(repo, *branch, resolvedIndex, *compare)
 		if err != nil {
 			entry.Status = "error"
 			entry.Error = err.Error()
@@ -471,11 +509,12 @@ func loadHealthReport(repo *gitrepo.Repo, branch, indexPath, compare string) (mo
 	return report, nil
 }
 
-func loadMultiHealthReport(repo *gitrepo.Repo, branch, compare string) (model.MultiHealthReport, error) {
+func loadMultiHealthReport(repo *gitrepo.Repo, branch, compare string, includeIndex, excludeIndex []string) (model.MultiHealthReport, error) {
 	indexes, err := todo.DiscoverIndexes(repo, branch)
 	if err != nil {
 		return model.MultiHealthReport{}, err
 	}
+	indexes = filterIndexes(indexes, includeIndex, excludeIndex)
 	var compareIndexes []string
 	branchIndexSet := makeSet(indexes)
 	compareIndexSet := map[string]bool{}
@@ -486,6 +525,7 @@ func loadMultiHealthReport(repo *gitrepo.Repo, branch, compare string) (model.Mu
 		if err != nil {
 			return model.MultiHealthReport{}, err
 		}
+		compareIndexes = filterIndexes(compareIndexes, includeIndex, excludeIndex)
 		compareIndexSet = makeSet(compareIndexes)
 		onlyInBranch, onlyInCompare = diffSets(branchIndexSet, compareIndexSet)
 	}
@@ -559,4 +599,72 @@ func writeJSONFile(path string, value any) error {
 		return fmt.Errorf("write json file %s: %w", path, err)
 	}
 	return nil
+}
+
+type multiStringFlag []string
+
+func (m *multiStringFlag) String() string {
+	return strings.Join(*m, ",")
+}
+
+func (m *multiStringFlag) Set(value string) error {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil
+	}
+	*m = append(*m, value)
+	return nil
+}
+
+func resolveSingleIndex(repo *gitrepo.Repo, branch, indexPath string, includeIndex, excludeIndex []string) (string, error) {
+	indexPath = strings.TrimSpace(indexPath)
+	if indexPath == "" {
+		indexPath = "TODO/TODO.md"
+	}
+	if len(includeIndex) == 0 && len(excludeIndex) == 0 {
+		return indexPath, nil
+	}
+	if !indexAllowed(indexPath, includeIndex, excludeIndex) {
+		return "", fmt.Errorf("index %q is filtered out by include/exclude index rules", indexPath)
+	}
+	return indexPath, nil
+}
+
+func filterIndexes(indexes []string, includeIndex, excludeIndex []string) []string {
+	if len(includeIndex) == 0 && len(excludeIndex) == 0 {
+		return indexes
+	}
+	var filtered []string
+	for _, index := range indexes {
+		if indexAllowed(index, includeIndex, excludeIndex) {
+			filtered = append(filtered, index)
+		}
+	}
+	return filtered
+}
+
+func indexAllowed(index string, includeIndex, excludeIndex []string) bool {
+	if len(includeIndex) > 0 && !matchesFilter(index, includeIndex) {
+		return false
+	}
+	if matchesFilter(index, excludeIndex) {
+		return false
+	}
+	return true
+}
+
+func matchesFilter(value string, filters []string) bool {
+	if len(filters) == 0 {
+		return false
+	}
+	value = strings.ToLower(value)
+	for _, filter := range filters {
+		if filter == "" {
+			continue
+		}
+		if strings.Contains(value, strings.ToLower(filter)) {
+			return true
+		}
+	}
+	return false
 }

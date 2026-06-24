@@ -462,7 +462,8 @@
         </div>
         <p>
           The CLI stays readable by default, but it also exports
-          <code>markdown</code>, <code>json</code>, and <code>tsv</code>.
+          <code>markdown</code>, <code>json</code>, and <code>tsv</code>, and it
+          can narrow large runs with repo and index filters.
         </p>
       </div>
 
@@ -475,9 +476,11 @@
 todo-report drift --repo ~/lab/cswg/coordination --branch-a main --branch-b jj
 todo-report lint --repo ~/lab/cswg/coordination --branch jj --format markdown
 todo-report indexes --repo ~/lab/wire-lab --branch main --format text
+todo-report indexes --repo ~/lab/wire-lab --branch main --include-index SIM-beta --format text
 todo-report health --repo ~/lab/wire-lab --branch main --all-indexes --format text
 todo-report health --repo ~/lab/cswg/coordination --branch jj --all-indexes --compare main --format text
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --format text
+todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/ --format text
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet-health.json --format text
 todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-lab.d/TODO/TODO.md --format json</code></pre>
       </div>

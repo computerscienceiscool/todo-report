@@ -45,3 +45,19 @@ func TestBuildHealthReport(t *testing.T) {
 		t.Fatalf("unexpected fleet totals %#v", report)
 	}
 }
+
+func TestFilterRepoPaths(t *testing.T) {
+	repos := []string{
+		"/tmp/coordination",
+		"/tmp/wire-lab",
+		"/tmp/archive-repo",
+	}
+
+	filtered := FilterRepoPaths(repos, []string{"wire", "coord"}, []string{"archive"})
+	if len(filtered) != 2 {
+		t.Fatalf("unexpected filtered repos %#v", filtered)
+	}
+	if filtered[0] != "/tmp/coordination" || filtered[1] != "/tmp/wire-lab" {
+		t.Fatalf("unexpected filtered order %#v", filtered)
+	}
+}
