@@ -33,6 +33,11 @@ func TestRunErrors(t *testing.T) {
 			want: "age requires --branch",
 		},
 		{
+			name: "detect missing branch",
+			args: []string{"detect"},
+			want: "detect requires --branch",
+		},
+		{
 			name: "drift missing branches",
 			args: []string{"drift"},
 			want: "drift requires --branch-a and --branch-b",
@@ -128,6 +133,22 @@ func TestRunAgeEndToEnd(t *testing.T) {
 	})
 
 	for _, want := range []string{"TODO-ravud", "TODO/TODO.md", "Legacy task"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunDetectEndToEnd(t *testing.T) {
+	repo := sampleCLIRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"detect", "--repo", repo.Dir, "--branch", "jj", "--format", "text"}); err != nil {
+			t.Fatalf("run detect: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Compatibility:", "Top-level ID styles:", "Subtask ID styles:"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("expected %q in %q", want, out)
 		}

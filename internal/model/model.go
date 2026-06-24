@@ -176,3 +176,25 @@ type FleetHealthReport struct {
 	DriftItems     int                `json:"drift_items"`
 	Entries        []FleetHealthEntry `json:"entries"`
 }
+
+type DetectFinding struct {
+	Code     string   `json:"code"`
+	Count    int      `json:"count"`
+	Examples []string `json:"examples,omitempty"`
+}
+
+type DetectReport struct {
+	Repo             string          `json:"repo"`
+	Branch           string          `json:"branch"`
+	IndexFile        string          `json:"index_file"`
+	TodoRoot         string          `json:"todo_root"`
+	Compatibility    string          `json:"compatibility"`
+	IndexLayouts     []string        `json:"index_layouts"`
+	TopLevelIDStyles []string        `json:"top_level_id_styles"`
+	SubtaskIDStyles  []string        `json:"subtask_id_styles"`
+	Features         []string        `json:"features,omitempty"`
+	StyleFindings    []DetectFinding `json:"style_findings,omitempty"`
+	TopLevelCount    int             `json:"top_level_count"`
+	DetailFileCount  int             `json:"detail_file_count"`
+	SubtaskCount     int             `json:"subtask_count"`
+}

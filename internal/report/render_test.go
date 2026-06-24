@@ -49,6 +49,49 @@ func TestRenderAgeFormats(t *testing.T) {
 	}
 }
 
+func TestRenderDetectFormats(t *testing.T) {
+	report := model.DetectReport{
+		Repo:             "coordination",
+		Branch:           "jj",
+		IndexFile:        "TODO/TODO.md",
+		Compatibility:    "compatible_with_warnings",
+		IndexLayouts:     []string{"checklist_lines"},
+		TopLevelIDStyles: []string{"numeric_legacy", "proquint"},
+		SubtaskIDStyles:  []string{"numeric_dotted", "parent_prefixed_dotted"},
+		Features:         []string{"approximate_checkboxes"},
+		StyleFindings: []model.DetectFinding{
+			{Code: "invalid_checkbox", Count: 2, Examples: []string{"TODO/TODO.md:12"}},
+		},
+		TopLevelCount:   3,
+		DetailFileCount: 1,
+		SubtaskCount:    4,
+	}
+
+	tests := []struct {
+		format string
+		want   []string
+	}{
+		{format: "text", want: []string{"Compatibility: COMPATIBLE_WITH_WARNINGS", "Top-level ID styles: numeric_legacy, proquint"}},
+		{format: "markdown", want: []string{"## Detect Report", "### Top-level ID styles", "### Compatibility Findings"}},
+		{format: "json", want: []string{`"compatibility": "compatible_with_warnings"`, `"style_findings": [`}},
+		{format: "tsv", want: []string{"section\tkey\tvalue", "summary\tcompatibility\tcompatible_with_warnings", "style_finding\tinvalid_checkbox\t2"}},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.format, func(t *testing.T) {
+			out, err := RenderDetect(report, tc.format)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			for _, want := range tc.want {
+				if !strings.Contains(out, want) {
+					t.Fatalf("expected %q in output %q", want, out)
+				}
+			}
+		})
+	}
+}
+
 func TestRenderLintFormats(t *testing.T) {
 	snapshot := sampleSnapshot()
 	findings := []model.LintFinding{

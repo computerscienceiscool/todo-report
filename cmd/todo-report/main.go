@@ -36,6 +36,8 @@ func run(args []string) error {
 	switch args[0] {
 	case "age":
 		return runAge(args[1:])
+	case "detect":
+		return runDetect(args[1:])
 	case "drift":
 		return runDrift(args[1:])
 	case "indexes":
@@ -85,6 +87,42 @@ func runAge(args []string) error {
 	}
 
 	out, err := report.RenderAge(records, formatValue)
+	if err != nil {
+		return err
+	}
+	fmt.Print(out)
+	return nil
+}
+
+func runDetect(args []string) error {
+	fs := flag.NewFlagSet("detect", flag.ContinueOnError)
+	repoPath := fs.String("repo", ".", "path to git repo")
+	branch := fs.String("branch", "", "branch to inspect")
+	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
+	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
+	jsonFlag := fs.Bool("json", false, "alias for --format json")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	formatValue, err := normalizeFormat(*format, *jsonFlag)
+	if err != nil {
+		return err
+	}
+	if *branch == "" {
+		return errors.New("detect requires --branch")
+	}
+
+	repo, err := gitrepo.Open(*repoPath)
+	if err != nil {
+		return err
+	}
+
+	snapshot, err := todo.LoadSnapshot(repo, *branch, *indexPath)
+	if err != nil {
+		return err
+	}
+
+	out, err := report.RenderDetect(todo.DetectSnapshot(snapshot), formatValue)
 	if err != nil {
 		return err
 	}
@@ -388,7 +426,7 @@ func runFleetHealth(args []string) error {
 
 func usageError() error {
 	name := filepath.Base(os.Args[0])
-	return fmt.Errorf("usage: %s <age|drift|indexes|lint|health|fleet> [flags]", name)
+	return fmt.Errorf("usage: %s <age|detect|drift|indexes|lint|health|fleet> [flags]", name)
 }
 
 func normalizeFormat(format string, jsonFlag bool) (string, error) {

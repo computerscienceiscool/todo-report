@@ -58,6 +58,97 @@ func RenderAge(records []model.AgeRecord, format string) (string, error) {
 	}
 }
 
+func RenderDetect(report model.DetectReport, format string) (string, error) {
+	switch format {
+	case "json":
+		return marshal(report)
+	case "tsv":
+		var b strings.Builder
+		b.WriteString("section\tkey\tvalue\n")
+		fmt.Fprintf(&b, "summary\trepo\t%s\n", report.Repo)
+		fmt.Fprintf(&b, "summary\tbranch\t%s\n", report.Branch)
+		fmt.Fprintf(&b, "summary\tindex_file\t%s\n", report.IndexFile)
+		fmt.Fprintf(&b, "summary\tcompatibility\t%s\n", report.Compatibility)
+		fmt.Fprintf(&b, "summary\ttop_level_count\t%d\n", report.TopLevelCount)
+		fmt.Fprintf(&b, "summary\tdetail_file_count\t%d\n", report.DetailFileCount)
+		fmt.Fprintf(&b, "summary\tsubtask_count\t%d\n", report.SubtaskCount)
+		for _, layout := range report.IndexLayouts {
+			fmt.Fprintf(&b, "index_layout\tlayout\t%s\n", layout)
+		}
+		for _, style := range report.TopLevelIDStyles {
+			fmt.Fprintf(&b, "top_level_style\tstyle\t%s\n", style)
+		}
+		for _, style := range report.SubtaskIDStyles {
+			fmt.Fprintf(&b, "subtask_style\tstyle\t%s\n", style)
+		}
+		for _, feature := range report.Features {
+			fmt.Fprintf(&b, "feature\tname\t%s\n", feature)
+		}
+		for _, finding := range report.StyleFindings {
+			fmt.Fprintf(&b, "style_finding\t%s\t%d\n", finding.Code, finding.Count)
+		}
+		return b.String(), nil
+	case "markdown":
+		var b strings.Builder
+		b.WriteString("## Detect Report\n\n")
+		fmt.Fprintf(&b, "- Repo: `%s`\n", report.Repo)
+		fmt.Fprintf(&b, "- Branch: `%s`\n", report.Branch)
+		fmt.Fprintf(&b, "- Index: `%s`\n", report.IndexFile)
+		fmt.Fprintf(&b, "- Compatibility: `%s`\n", report.Compatibility)
+		fmt.Fprintf(&b, "- Top-level TODOs: %d\n", report.TopLevelCount)
+		fmt.Fprintf(&b, "- Detail files: %d\n", report.DetailFileCount)
+		fmt.Fprintf(&b, "- Subtasks: %d\n\n", report.SubtaskCount)
+		writeMarkdownInlineList(&b, "Index layouts", report.IndexLayouts)
+		writeMarkdownInlineList(&b, "Top-level ID styles", report.TopLevelIDStyles)
+		writeMarkdownInlineList(&b, "Subtask ID styles", report.SubtaskIDStyles)
+		if len(report.Features) > 0 {
+			writeMarkdownInlineList(&b, "Detected features", report.Features)
+		}
+		if len(report.StyleFindings) > 0 {
+			b.WriteString("### Compatibility Findings\n\n")
+			for _, finding := range report.StyleFindings {
+				fmt.Fprintf(&b, "- [ ] `%s` - %d", finding.Code, finding.Count)
+				if len(finding.Examples) > 0 {
+					fmt.Fprintf(&b, " (`%s`)", strings.Join(finding.Examples, "`, `"))
+				}
+				b.WriteByte('\n')
+			}
+			b.WriteByte('\n')
+		} else {
+			b.WriteString("### Compatibility Findings\n\n- [x] No style-compatibility problems detected\n\n")
+		}
+		return b.String(), nil
+	case "text":
+		var b strings.Builder
+		fmt.Fprintf(&b, "Repo: %s\n", report.Repo)
+		fmt.Fprintf(&b, "Branch: %s\n", report.Branch)
+		fmt.Fprintf(&b, "Index: %s\n", report.IndexFile)
+		fmt.Fprintf(&b, "Compatibility: %s\n", strings.ToUpper(report.Compatibility))
+		fmt.Fprintf(&b, "Top-level TODOs: %d\n", report.TopLevelCount)
+		fmt.Fprintf(&b, "Detail files: %d\n", report.DetailFileCount)
+		fmt.Fprintf(&b, "Subtasks: %d\n", report.SubtaskCount)
+		fmt.Fprintf(&b, "Index layouts: %s\n", strings.Join(report.IndexLayouts, ", "))
+		fmt.Fprintf(&b, "Top-level ID styles: %s\n", strings.Join(report.TopLevelIDStyles, ", "))
+		fmt.Fprintf(&b, "Subtask ID styles: %s\n", strings.Join(report.SubtaskIDStyles, ", "))
+		if len(report.Features) > 0 {
+			fmt.Fprintf(&b, "Detected features: %s\n", strings.Join(report.Features, ", "))
+		}
+		if len(report.StyleFindings) > 0 {
+			b.WriteString("\nCompatibility findings:\n")
+			for _, finding := range report.StyleFindings {
+				fmt.Fprintf(&b, "  %s (%d)", finding.Code, finding.Count)
+				if len(finding.Examples) > 0 {
+					fmt.Fprintf(&b, " - %s", strings.Join(finding.Examples, ", "))
+				}
+				b.WriteByte('\n')
+			}
+		}
+		return b.String(), nil
+	default:
+		return "", fmt.Errorf("unsupported format %q", format)
+	}
+}
+
 func RenderLint(snapshot model.Snapshot, findings []model.LintFinding, format string) (string, error) {
 	switch format {
 	case "json":
@@ -560,6 +651,17 @@ func writeListTSV(b *strings.Builder, kind string, values []string) {
 	for _, value := range values {
 		fmt.Fprintf(b, "%s\t%s\t\n", kind, value)
 	}
+}
+
+func writeMarkdownInlineList(b *strings.Builder, title string, values []string) {
+	if len(values) == 0 {
+		return
+	}
+	fmt.Fprintf(b, "### %s\n\n", title)
+	for _, value := range values {
+		fmt.Fprintf(b, "- [ ] `%s`\n", value)
+	}
+	b.WriteByte('\n')
 }
 
 func writeFleetRepoFailuresMarkdown(b *strings.Builder, entries []model.FleetHealthEntry) {
