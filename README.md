@@ -173,7 +173,7 @@ All commands support:
 Format guidance:
 
 - `text`: readable terminal output
-- `markdown`: GitHub-friendly checklist and summary output
+- `markdown`: portable checklist and summary output for GitHub, Gitea, and plain Markdown viewers
 - `json`: structured export for later tooling
 - `tsv`: Unix-friendly tab-separated output for shell pipelines
 

@@ -157,6 +157,19 @@ todo-report fleet health \
 This is useful when a team wants repo-by-repo drift counts across a set of
 working branches.
 
+Portable fleet Markdown:
+
+```bash
+todo-report fleet health \
+  --repo-list repos.txt \
+  --branch main \
+  --all-indexes \
+  --format markdown
+```
+
+This is useful when the team wants one report that reads cleanly in older Gitea
+instances, GitHub, or plain Markdown viewers.
+
 Fleet snapshot export:
 
 ```bash

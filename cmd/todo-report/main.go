@@ -439,15 +439,18 @@ func loadMultiHealthReport(repo *gitrepo.Repo, branch, compare string) (model.Mu
 		return model.MultiHealthReport{}, err
 	}
 	var compareIndexes []string
+	branchIndexSet := makeSet(indexes)
+	compareIndexSet := map[string]bool{}
+	var onlyInBranch []string
+	var onlyInCompare []string
 	if compare != "" {
 		compareIndexes, err = todo.DiscoverIndexes(repo, compare)
 		if err != nil {
 			return model.MultiHealthReport{}, err
 		}
+		compareIndexSet = makeSet(compareIndexes)
+		onlyInBranch, onlyInCompare = diffSets(branchIndexSet, compareIndexSet)
 	}
-	branchIndexSet := makeSet(indexes)
-	compareIndexSet := makeSet(compareIndexes)
-	onlyInBranch, onlyInCompare := diffSets(branchIndexSet, compareIndexSet)
 	reports := make([]model.HealthReport, 0, len(indexes))
 	for _, discovered := range indexes {
 		compareForIndex := ""

@@ -244,7 +244,25 @@ func TestRenderFleetHealthFormats(t *testing.T) {
 		LintWarnings:   2,
 		DriftItems:     5,
 		Entries: []model.FleetHealthEntry{
-			{Repo: "coordination", RepoPath: "/tmp/coordination", Status: "warning", IndexMode: "all-indexes", IndexCount: 2, OpenTODOs: 7, CompletedTODOs: 3, LintWarnings: 2, DriftItems: 5},
+			{
+				Repo:           "coordination",
+				RepoPath:       "/tmp/coordination",
+				Status:         "warning",
+				IndexMode:      "all-indexes",
+				IndexCount:     2,
+				OpenTODOs:      7,
+				CompletedTODOs: 3,
+				LintWarnings:   2,
+				DriftItems:     5,
+				MultiHealth: &model.MultiHealthReport{
+					Branch:               "main",
+					CompareBranch:        "jj",
+					IndexesOnlyInCompare: []string{"protocols/archive/TODO/TODO.md"},
+					Reports: []model.HealthReport{
+						{IndexFile: "TODO/TODO.md", Status: "warning", LintWarnings: 2, Drift: &model.DriftResult{TotalDifferenceRows: 5}},
+					},
+				},
+			},
 			{Repo: "broken", RepoPath: "/tmp/broken", Status: "error", Error: "open repo failed", IndexMode: "single-index"},
 		},
 	}
@@ -254,7 +272,7 @@ func TestRenderFleetHealthFormats(t *testing.T) {
 		want   []string
 	}{
 		{format: "text", want: []string{"Repo list: /tmp/repos.txt", "Fleet drift rows: 5", "/tmp/broken\tERROR\topen repo failed"}},
-		{format: "markdown", want: []string{"## Fleet Health Report", "- Branch: `main`", "error: open repo failed"}},
+		{format: "markdown", want: []string{"## Fleet Health Report", "### Fleet Summary", "### Repo Failures", "### Repos Needing Attention", "#### `coordination`", "Indexes only in `jj`:", "- Error: open repo failed"}},
 		{format: "json", want: []string{`"repo_count": 2`, `"repo_path": "/tmp/coordination"`}},
 		{format: "tsv", want: []string{"scope\trepo\trepo_path\tstatus", "summary\t(all)\t/tmp/repos.txt\twarning", "repo\tbroken\t/tmp/broken\terror"}},
 	}

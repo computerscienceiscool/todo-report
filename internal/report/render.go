@@ -459,19 +459,34 @@ func RenderFleetHealth(report model.FleetHealthReport, format string) (string, e
 		if report.CompareBranch != "" {
 			fmt.Fprintf(&b, "- Fleet drift rows: %d\n", report.DriftItems)
 		}
-		b.WriteString("\n### Repos\n\n")
-		for _, entry := range report.Entries {
-			if entry.Error != "" {
-				fmt.Fprintf(&b, "- [ ] `%s` - status `%s`, error: %s\n", entry.RepoPath, entry.Status, entry.Error)
-				continue
-			}
-			line := fmt.Sprintf("- [ ] `%s` - status `%s`, mode `%s`, indexes %d, open %d, completed %d, lint errors %d, lint warnings %d",
-				entry.Repo, entry.Status, entry.IndexMode, entry.IndexCount, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
-			if report.CompareBranch != "" {
-				line += fmt.Sprintf(", drift rows %d", entry.DriftItems)
-			}
-			b.WriteString(line + "\n")
+		b.WriteString("\n")
+
+		attentionRepos := countFleetAttentionRepos(report.Entries)
+		b.WriteString("### Fleet Summary\n\n")
+		fmt.Fprintf(&b, "- [ ] Fleet status: `%s`\n", report.Status)
+		fmt.Fprintf(&b, "- [ ] Repos needing attention: %d\n", attentionRepos)
+		if report.ErrorCount > 0 {
+			fmt.Fprintf(&b, "- [ ] Repo load failures: %d\n", report.ErrorCount)
+		} else {
+			b.WriteString("- [x] Repo load failures: 0\n")
 		}
+		if report.LintErrors > 0 {
+			fmt.Fprintf(&b, "- [ ] Fleet lint errors: %d\n", report.LintErrors)
+		} else {
+			b.WriteString("- [x] Fleet lint errors: 0\n")
+		}
+		if report.CompareBranch != "" {
+			if report.DriftItems > 0 {
+				fmt.Fprintf(&b, "- [ ] Fleet drift rows: %d\n", report.DriftItems)
+			} else {
+				b.WriteString("- [x] Fleet drift rows: 0\n")
+			}
+		}
+		b.WriteString("\n")
+
+		writeFleetRepoFailuresMarkdown(&b, report.Entries)
+		writeFleetAttentionMarkdown(&b, report.Entries)
+		writeFleetRepoSectionsMarkdown(&b, report.Entries)
 		return b.String(), nil
 	case "text":
 		var b strings.Builder
@@ -547,10 +562,155 @@ func writeListTSV(b *strings.Builder, kind string, values []string) {
 	}
 }
 
+func writeFleetRepoFailuresMarkdown(b *strings.Builder, entries []model.FleetHealthEntry) {
+	var failed []model.FleetHealthEntry
+	for _, entry := range entries {
+		if entry.Error != "" {
+			failed = append(failed, entry)
+		}
+	}
+	if len(failed) == 0 {
+		return
+	}
+
+	b.WriteString("### Repo Failures\n\n")
+	for _, entry := range failed {
+		fmt.Fprintf(b, "- [ ] `%s` - %s\n", entry.RepoPath, entry.Error)
+	}
+	b.WriteString("\n")
+}
+
+func writeFleetAttentionMarkdown(b *strings.Builder, entries []model.FleetHealthEntry) {
+	var attention []model.FleetHealthEntry
+	for _, entry := range entries {
+		if entry.Error != "" || entry.Status == "clean" {
+			continue
+		}
+		attention = append(attention, entry)
+	}
+	if len(attention) == 0 {
+		b.WriteString("### Repos Needing Attention\n\n")
+		b.WriteString("- [x] None\n\n")
+		return
+	}
+
+	b.WriteString("### Repos Needing Attention\n\n")
+	for _, entry := range attention {
+		line := fmt.Sprintf("- [ ] `%s` - status `%s`, open %d, completed %d, lint errors %d, lint warnings %d",
+			entry.Repo, entry.Status, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
+		if entry.DriftItems > 0 {
+			line += fmt.Sprintf(", drift rows %d", entry.DriftItems)
+		}
+		b.WriteString(line + "\n")
+	}
+	b.WriteString("\n")
+}
+
+func writeFleetRepoSectionsMarkdown(b *strings.Builder, entries []model.FleetHealthEntry) {
+	b.WriteString("### Repo Details\n\n")
+	for _, entry := range entries {
+		label := entry.Repo
+		if label == "" {
+			label = entry.RepoPath
+		}
+		fmt.Fprintf(b, "#### `%s`\n\n", label)
+		fmt.Fprintf(b, "- Path: `%s`\n", entry.RepoPath)
+		fmt.Fprintf(b, "- Status: `%s`\n", entry.Status)
+		fmt.Fprintf(b, "- Mode: `%s`\n", entry.IndexMode)
+		if entry.Error != "" {
+			fmt.Fprintf(b, "- Error: %s\n\n", entry.Error)
+			continue
+		}
+		fmt.Fprintf(b, "- Indexes: %d\n", entry.IndexCount)
+		fmt.Fprintf(b, "- Open TODOs: %d\n", entry.OpenTODOs)
+		fmt.Fprintf(b, "- Completed TODOs: %d\n", entry.CompletedTODOs)
+		fmt.Fprintf(b, "- Lint errors: %d\n", entry.LintErrors)
+		fmt.Fprintf(b, "- Lint warnings: %d\n", entry.LintWarnings)
+		if entry.DriftItems > 0 {
+			fmt.Fprintf(b, "- Drift rows: %d\n", entry.DriftItems)
+		}
+		b.WriteString("\n")
+
+		if entry.Health != nil {
+			writeFleetSingleHealthHighlightsMarkdown(b, *entry.Health)
+		}
+		if entry.MultiHealth != nil {
+			writeFleetMultiHealthHighlightsMarkdown(b, *entry.MultiHealth)
+		}
+	}
+}
+
+func writeFleetSingleHealthHighlightsMarkdown(b *strings.Builder, report model.HealthReport) {
+	if len(report.FindingSummary) > 0 {
+		b.WriteString("Top findings:\n")
+		for _, summary := range report.FindingSummary {
+			fmt.Fprintf(b, "- [ ] `%s` `%s` - %d\n", summary.Severity, summary.Code, summary.Count)
+		}
+	}
+	if len(report.OldestOpenItems) > 0 {
+		b.WriteString("Oldest open TODOs:\n")
+		for _, record := range report.OldestOpenItems {
+			fmt.Fprintf(b, "- [ ] `%s` - %s (%d days)\n", record.Todo.TodoID, record.Todo.Title, record.AgeDays)
+		}
+	}
+	if report.Drift != nil && report.Drift.TotalDifferenceRows > 0 {
+		fmt.Fprintf(b, "- [ ] Drift rows on `%s`: %d\n", report.IndexFile, report.Drift.TotalDifferenceRows)
+	}
+	if len(report.FindingSummary) > 0 || len(report.OldestOpenItems) > 0 || (report.Drift != nil && report.Drift.TotalDifferenceRows > 0) {
+		b.WriteString("\n")
+	}
+}
+
+func writeFleetMultiHealthHighlightsMarkdown(b *strings.Builder, report model.MultiHealthReport) {
+	var highlighted []model.HealthReport
+	for _, child := range report.Reports {
+		if child.Status != "clean" || (child.Drift != nil && child.Drift.TotalDifferenceRows > 0) {
+			highlighted = append(highlighted, child)
+		}
+	}
+	if len(highlighted) > 0 {
+		b.WriteString("Index highlights:\n")
+		for _, child := range highlighted {
+			line := fmt.Sprintf("- [ ] `%s` - status `%s`, lint errors %d, lint warnings %d",
+				child.IndexFile, child.Status, child.LintErrors, child.LintWarnings)
+			if child.Drift != nil && child.Drift.TotalDifferenceRows > 0 {
+				line += fmt.Sprintf(", drift rows %d", child.Drift.TotalDifferenceRows)
+			}
+			b.WriteString(line + "\n")
+		}
+	}
+	if len(report.IndexesOnlyInBranch) > 0 {
+		fmt.Fprintf(b, "Indexes only in `%s`:\n", report.Branch)
+		for _, index := range report.IndexesOnlyInBranch {
+			fmt.Fprintf(b, "- [ ] `%s`\n", index)
+		}
+	}
+	if len(report.IndexesOnlyInCompare) > 0 {
+		fmt.Fprintf(b, "Indexes only in `%s`:\n", report.CompareBranch)
+		for _, index := range report.IndexesOnlyInCompare {
+			fmt.Fprintf(b, "- [ ] `%s`\n", index)
+		}
+	}
+	if len(highlighted) > 0 || len(report.IndexesOnlyInBranch) > 0 || len(report.IndexesOnlyInCompare) > 0 {
+		b.WriteString("\n")
+	}
+}
+
 func cleanTSV(value string) string {
 	value = strings.ReplaceAll(value, "\t", " ")
 	value = strings.ReplaceAll(value, "\n", " ")
 	return value
+}
+
+func countFleetAttentionRepos(entries []model.FleetHealthEntry) int {
+	count := 0
+	for _, entry := range entries {
+		if entry.Error != "" || entry.Status == "clean" {
+			continue
+		}
+		count++
+	}
+	return count
 }
 
 func SortedKeys[K ~string, V any](m map[K]V) []K {
