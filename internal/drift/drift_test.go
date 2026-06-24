@@ -24,11 +24,11 @@ func TestCompareTracksTopLevelAndSubtaskDrift(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	mainSnapshot, err := todo.LoadSnapshot(repo, "main")
+	mainSnapshot, err := todo.LoadSnapshot(repo, "main", "TODO/TODO.md")
 	if err != nil {
 		t.Fatal(err)
 	}
-	jjSnapshot, err := todo.LoadSnapshot(repo, "jj")
+	jjSnapshot, err := todo.LoadSnapshot(repo, "jj", "TODO/TODO.md")
 	if err != nil {
 		t.Fatal(err)
 	}

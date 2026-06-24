@@ -44,8 +44,27 @@ todo-report health --repo ~/lab/cswg/coordination --branch jj --format json
 This is useful when another tool wants a structured export with summary counts,
 lint findings, and age data in one payload.
 
-## Known limitation
+## Nested index example
 
-The current implementation expects `TODO/TODO.md` at repo root. Repos such as
-`wire-lab` that keep active TODO indexes deeper in the tree are not yet
-supported by the current CLI contract.
+`wire-lab` keeps its active master queue under a nested path, so it needs
+`--index`:
+
+```bash
+todo-report health \
+  --repo ~/lab/wire-lab \
+  --branch main \
+  --index protocols/wire-lab.d/TODO/TODO.md \
+  --format text
+```
+
+This is useful for monorepos where the authoritative TODO index is not at
+repo-root `TODO/TODO.md`.
+
+## Known limitations
+
+- Root-level `TODO/TODO.md` is still the default, but nested indexes are
+  supported through `--index`.
+- Cross-TODO references like `TODO-foo/bar` are not treated as missing subtasks
+  in the current parent detail file.
+- Checkbox-style detail subtasks accept `[ ]`, `[x]`, and `[~]`, with `[~]`
+  reported as open.

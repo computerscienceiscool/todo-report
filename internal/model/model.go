@@ -51,6 +51,8 @@ type Snapshot struct {
 	RepoPath         string               `json:"repo_path"`
 	Branch           string               `json:"branch"`
 	CommitHash       string               `json:"commit_hash"`
+	IndexFile        string               `json:"index_file"`
+	TodoRoot         string               `json:"todo_root"`
 	Items            []TodoItem           `json:"items"`
 	ItemByID         map[string]TodoItem  `json:"-"`
 	SubtasksByParent map[string][]Subtask `json:"subtasks_by_parent"`

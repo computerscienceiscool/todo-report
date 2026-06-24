@@ -47,6 +47,7 @@ func runAge(args []string) error {
 	fs := flag.NewFlagSet("age", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
+	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
@@ -65,7 +66,7 @@ func runAge(args []string) error {
 		return err
 	}
 
-	snapshot, err := todo.LoadSnapshot(repo, *branch)
+	snapshot, err := todo.LoadSnapshot(repo, *branch, *indexPath)
 	if err != nil {
 		return err
 	}
@@ -88,6 +89,7 @@ func runDrift(args []string) error {
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branchA := fs.String("branch-a", "", "left branch")
 	branchB := fs.String("branch-b", "", "right branch")
+	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
@@ -106,11 +108,11 @@ func runDrift(args []string) error {
 		return err
 	}
 
-	left, err := todo.LoadSnapshot(repo, *branchA)
+	left, err := todo.LoadSnapshot(repo, *branchA, *indexPath)
 	if err != nil {
 		return err
 	}
-	right, err := todo.LoadSnapshot(repo, *branchB)
+	right, err := todo.LoadSnapshot(repo, *branchB, *indexPath)
 	if err != nil {
 		return err
 	}
@@ -128,6 +130,7 @@ func runLint(args []string) error {
 	fs := flag.NewFlagSet("lint", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
+	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	if err := fs.Parse(args); err != nil {
@@ -146,7 +149,7 @@ func runLint(args []string) error {
 		return err
 	}
 
-	snapshot, err := todo.LoadSnapshot(repo, *branch)
+	snapshot, err := todo.LoadSnapshot(repo, *branch, *indexPath)
 	if err != nil {
 		return err
 	}
@@ -164,6 +167,7 @@ func runHealth(args []string) error {
 	fs := flag.NewFlagSet("health", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
+	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	compare := fs.String("compare", "", "optional branch to compare against")
@@ -183,7 +187,7 @@ func runHealth(args []string) error {
 		return err
 	}
 
-	snapshot, err := todo.LoadSnapshot(repo, *branch)
+	snapshot, err := todo.LoadSnapshot(repo, *branch, *indexPath)
 	if err != nil {
 		return err
 	}
@@ -196,7 +200,7 @@ func runHealth(args []string) error {
 
 	var driftResult *model.DriftResult
 	if *compare != "" {
-		other, err := todo.LoadSnapshot(repo, *compare)
+		other, err := todo.LoadSnapshot(repo, *compare, *indexPath)
 		if err != nil {
 			return err
 		}

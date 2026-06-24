@@ -12,28 +12,32 @@ import (
 )
 
 var (
-	indexLineRE     = regexp.MustCompile(`^\s*(?:-\s*)?(?:\[( |x|X)\]\s+)?([A-Za-z0-9-]+)\s+-\s+(.+?)(?:\s+\(` + "`([^`]+)`" + `\))?\s*$`)
-	subtaskLineRE   = regexp.MustCompile(`^\s*-\s+\[( |x|X)\]\s+(\S+)(?:\s+(.+?))?\s*$`)
-	badCheckboxRE   = regexp.MustCompile(`^\s*-\s+\[[^ xX]\]`)
-	targetRefRE     = regexp.MustCompile(`\b(TODO-[a-z]{5})/([A-Za-z0-9]+(?:\.\d+)+)\b`)
+	indexLineRE     = regexp.MustCompile(`^\s*(?:-\s*)?(?:\[( |x|X|~)\]\s+)?([A-Za-z0-9-]+)\s+-\s+(.+?)(?:\s+\(` + "`([^`]+)`" + `\))?\s*$`)
+	subtaskLineRE   = regexp.MustCompile(`^\s*-\s+\[( |x|X|~)\]\s+(\S+)(?:\s+(.+?))?\s*$`)
+	indexTableRowRE = regexp.MustCompile(`^\|\s*\[([A-Za-z0-9-]+)\]\(([^)]+)\)\s*\|\s*([^|]*)\|\s*(.*?)\s*\|\s*([^|]*)\|\s*$`)
+	badCheckboxRE   = regexp.MustCompile(`^\s*-\s+\[[^ xX~]\]`)
+	targetRefRE     = regexp.MustCompile(`\b(TODO-[a-z]{5})/([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)\b`)
 	proquintRE      = regexp.MustCompile(`^TODO-[a-z]{5}$`)
 	legacyNumericRE = regexp.MustCompile(`^\d{3,4}$`)
 	legacyLetterRE  = regexp.MustCompile(`^[A-Za-z]\d{2,4}$`)
 )
 
-func LoadSnapshot(repo *gitrepo.Repo, branch string) (model.Snapshot, error) {
+func LoadSnapshot(repo *gitrepo.Repo, branch, indexPath string) (model.Snapshot, error) {
+	indexPath = normalizeIndexPath(indexPath)
+	todoRoot := path.Dir(indexPath)
+
 	commit, err := repo.BranchCommit(branch)
 	if err != nil {
 		return model.Snapshot{}, err
 	}
 
-	indexContent, err := repo.ShowFile(branch, "TODO/TODO.md")
+	indexContent, err := repo.ShowFile(branch, indexPath)
 	if err != nil {
-		return model.Snapshot{}, fmt.Errorf("load TODO/TODO.md from %s: %w", branch, err)
+		return model.Snapshot{}, fmt.Errorf("load %s from %s: %w", indexPath, branch, err)
 	}
 
-	items, findings := ParseIndex(repo.Name, branch, commit, "TODO/TODO.md", indexContent)
-	files, err := repo.ListFiles(branch, "TODO")
+	items, findings := ParseIndex(repo.Name, branch, commit, indexPath, indexContent)
+	files, err := repo.ListFiles(branch, todoRoot)
 	if err != nil {
 		return model.Snapshot{}, err
 	}
@@ -43,6 +47,8 @@ func LoadSnapshot(repo *gitrepo.Repo, branch string) (model.Snapshot, error) {
 		RepoPath:         repo.Root,
 		Branch:           branch,
 		CommitHash:       commit,
+		IndexFile:        indexPath,
+		TodoRoot:         todoRoot,
 		Items:            items,
 		ItemByID:         make(map[string]model.TodoItem, len(items)),
 		SubtasksByParent: make(map[string][]model.Subtask),
@@ -51,7 +57,7 @@ func LoadSnapshot(repo *gitrepo.Repo, branch string) (model.Snapshot, error) {
 		Findings:         findings,
 		Files:            files,
 		FileSet:          make(map[string]struct{}, len(files)),
-		FileContents:     map[string]string{"TODO/TODO.md": indexContent},
+		FileContents:     map[string]string{indexPath: indexContent},
 	}
 
 	for _, file := range files {
@@ -65,7 +71,7 @@ func LoadSnapshot(repo *gitrepo.Repo, branch string) (model.Snapshot, error) {
 	}
 
 	referenced := map[string]struct{}{}
-	for _, item := range items {
+	for i, item := range items {
 		if item.DetailFile == "" {
 			continue
 		}
@@ -83,6 +89,10 @@ func LoadSnapshot(repo *gitrepo.Repo, branch string) (model.Snapshot, error) {
 			continue
 		}
 		snapshot.FileContents[item.DetailFile] = content
+		item.Status = deriveTodoStatus(item.Status, content)
+		snapshot.Items[i] = item
+		snapshot.ItemByID[item.TodoID] = item
+		snapshot.DetailFiles[item.TodoID] = item.DetailFile
 		subtasks, detailFindings := ParseDetail(repo.Name, branch, commit, item, item.DetailFile, content)
 		snapshot.SubtasksByParent[item.TodoID] = subtasks
 		for _, subtask := range subtasks {
@@ -92,7 +102,10 @@ func LoadSnapshot(repo *gitrepo.Repo, branch string) (model.Snapshot, error) {
 	}
 
 	for _, file := range files {
-		if !strings.HasPrefix(file, "TODO/TODO-") || !strings.HasSuffix(file, ".md") {
+		if file == indexPath {
+			continue
+		}
+		if !strings.HasPrefix(file, todoRoot+"/TODO-") || !strings.HasSuffix(file, ".md") {
 			continue
 		}
 		if _, ok := referenced[file]; ok {
@@ -108,10 +121,11 @@ func ParseIndex(repoName, branch, commit, file, content string) ([]model.TodoIte
 	var items []model.TodoItem
 	var findings []model.LintFinding
 	seen := map[string]int{}
+	indexDir := path.Dir(file)
 
 	for i, line := range strings.Split(content, "\n") {
 		lineNo := i + 1
-		if strings.Contains(line, "TODO/") && !strings.Contains(line, "(`TODO/") && !strings.Contains(line, "(`") {
+		if !strings.HasPrefix(strings.TrimSpace(line), "|") && strings.Contains(line, "TODO/") && !strings.Contains(line, "(`TODO/") && !strings.Contains(line, "(`") {
 			if strings.Contains(line, "TODO/TODO-") && !strings.Contains(line, "(`TODO/") {
 				findings = append(findings, model.LintFinding{
 					Severity: "error",
@@ -132,49 +146,45 @@ func ParseIndex(repoName, branch, commit, file, content string) ([]model.TodoIte
 			})
 		}
 		matches := indexLineRE.FindStringSubmatch(line)
-		if matches == nil {
+		if matches != nil {
+			status := model.StatusOpen
+			if strings.EqualFold(matches[1], "x") {
+				status = model.StatusCompleted
+			}
+			todoID := matches[2]
+			title := strings.TrimSpace(matches[3])
+			detailFile := resolveDetailPath(indexDir, strings.TrimSpace(matches[4]))
+
+			findings = append(findings, validateTopLevelItem(todoID, detailFile, file, lineNo, seen)...)
+			if _, ok := seen[todoID]; !ok {
+				seen[todoID] = lineNo
+			}
+
+			items = append(items, model.TodoItem{
+				Repo:       repoName,
+				Branch:     branch,
+				CommitHash: commit,
+				TodoID:     todoID,
+				Title:      title,
+				Status:     status,
+				SourceFile: file,
+				DetailFile: detailFile,
+				Line:       lineNo,
+			})
 			continue
 		}
 
-		status := model.StatusOpen
-		if strings.EqualFold(matches[1], "x") {
-			status = model.StatusCompleted
+		rowMatches := indexTableRowRE.FindStringSubmatch(line)
+		if rowMatches == nil {
+			continue
 		}
-		todoID := matches[2]
-		title := strings.TrimSpace(matches[3])
-		detailFile := strings.TrimSpace(matches[4])
+		todoID := rowMatches[1]
+		detailFile := resolveDetailPath(indexDir, strings.TrimSpace(rowMatches[2]))
+		title := cleanTableTitle(strings.TrimSpace(rowMatches[4]))
 
-		if !validTopLevelID(todoID) {
-			findings = append(findings, model.LintFinding{
-				Severity: "error",
-				Code:     "malformed_todo_id",
-				TodoID:   todoID,
-				File:     file,
-				Line:     lineNo,
-				Message:  fmt.Sprintf("TODO ID %q is not a supported proquint or legacy ID.", todoID),
-			})
-		}
-		if firstLine, ok := seen[todoID]; ok {
-			findings = append(findings, model.LintFinding{
-				Severity: "error",
-				Code:     "duplicate_id",
-				TodoID:   todoID,
-				File:     file,
-				Line:     lineNo,
-				Message:  fmt.Sprintf("TODO ID %q was already declared on line %d.", todoID, firstLine),
-			})
-		} else {
+		findings = append(findings, validateTopLevelItem(todoID, detailFile, file, lineNo, seen)...)
+		if _, ok := seen[todoID]; !ok {
 			seen[todoID] = lineNo
-		}
-		if detailFile != "" && (!strings.HasPrefix(detailFile, "TODO/") || path.Ext(detailFile) != ".md") {
-			findings = append(findings, model.LintFinding{
-				Severity: "error",
-				Code:     "broken_detail_link",
-				TodoID:   todoID,
-				File:     file,
-				Line:     lineNo,
-				Message:  fmt.Sprintf("Detail file %q must live under TODO/ and end with .md.", detailFile),
-			})
 		}
 
 		items = append(items, model.TodoItem{
@@ -183,7 +193,7 @@ func ParseIndex(repoName, branch, commit, file, content string) ([]model.TodoIte
 			CommitHash: commit,
 			TodoID:     todoID,
 			Title:      title,
-			Status:     status,
+			Status:     model.StatusOpen,
 			SourceFile: file,
 			DetailFile: detailFile,
 			Line:       lineNo,
@@ -212,7 +222,11 @@ func ParseDetail(repoName, branch, commit string, parent model.TodoItem, file, c
 			})
 		}
 		for _, ref := range targetRefRE.FindAllStringSubmatch(line, -1) {
-			refs[ref[1]+"/"+ref[2]] = lineNo
+			if ref[1] != parent.TodoID {
+				continue
+			}
+			target := ref[1] + "/" + normalizeSubtaskID(ref[2])
+			refs[target] = lineNo
 		}
 		matches := subtaskLineRE.FindStringSubmatch(line)
 		if matches == nil {
@@ -223,7 +237,7 @@ func ParseDetail(repoName, branch, commit string, parent model.TodoItem, file, c
 		if strings.EqualFold(matches[1], "x") {
 			status = model.StatusCompleted
 		}
-		subtaskID := matches[2]
+		subtaskID := normalizeSubtaskID(matches[2])
 		title := strings.TrimSpace(matches[3])
 		if !validSubtaskID(subtaskID) {
 			findings = append(findings, model.LintFinding{
@@ -288,8 +302,117 @@ func validTopLevelID(id string) bool {
 }
 
 func validSubtaskID(id string) bool {
+	id = normalizeSubtaskID(id)
+	if id == "" {
+		return false
+	}
 	if regexp.MustCompile(`^\d+(?:\.\d+)*$`).MatchString(id) {
 		return true
 	}
-	return regexp.MustCompile(`^[A-Za-z0-9]+(?:\.\d+)+$`).MatchString(id)
+	return regexp.MustCompile(`^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*$`).MatchString(id)
+}
+
+func normalizeIndexPath(indexPath string) string {
+	indexPath = strings.TrimSpace(indexPath)
+	if indexPath == "" {
+		return "TODO/TODO.md"
+	}
+	return path.Clean(indexPath)
+}
+
+func resolveDetailPath(indexDir, link string) string {
+	link = strings.TrimSpace(link)
+	if link == "" {
+		return ""
+	}
+	if strings.HasPrefix(link, "./") || strings.HasPrefix(link, "../") || !strings.Contains(link, "/") {
+		return path.Clean(path.Join(indexDir, link))
+	}
+	return path.Clean(link)
+}
+
+func validateTopLevelItem(todoID, detailFile, file string, lineNo int, seen map[string]int) []model.LintFinding {
+	var findings []model.LintFinding
+	if !validTopLevelID(todoID) {
+		findings = append(findings, model.LintFinding{
+			Severity: "error",
+			Code:     "malformed_todo_id",
+			TodoID:   todoID,
+			File:     file,
+			Line:     lineNo,
+			Message:  fmt.Sprintf("TODO ID %q is not a supported proquint or legacy ID.", todoID),
+		})
+	}
+	if firstLine, ok := seen[todoID]; ok {
+		findings = append(findings, model.LintFinding{
+			Severity: "error",
+			Code:     "duplicate_id",
+			TodoID:   todoID,
+			File:     file,
+			Line:     lineNo,
+			Message:  fmt.Sprintf("TODO ID %q was already declared on line %d.", todoID, firstLine),
+		})
+	}
+	if detailFile != "" && path.Ext(detailFile) != ".md" {
+		findings = append(findings, model.LintFinding{
+			Severity: "error",
+			Code:     "broken_detail_link",
+			TodoID:   todoID,
+			File:     file,
+			Line:     lineNo,
+			Message:  fmt.Sprintf("Detail file %q must end with .md.", detailFile),
+		})
+	}
+	return findings
+}
+
+func cleanTableTitle(title string) string {
+	title = strings.TrimSpace(title)
+	title = strings.ReplaceAll(title, "**", "")
+	return title
+}
+
+func deriveTodoStatus(current model.Status, content string) model.Status {
+	if current == model.StatusCompleted {
+		return current
+	}
+	statusText := extractStatusText(content)
+	switch {
+	case strings.HasPrefix(statusText, "implemented"),
+		strings.HasPrefix(statusText, "closed"),
+		strings.HasPrefix(statusText, "retired"),
+		strings.HasPrefix(statusText, "deferred"),
+		strings.HasPrefix(statusText, "folded"):
+		return model.StatusCompleted
+	default:
+		return model.StatusOpen
+	}
+}
+
+func normalizeSubtaskID(id string) string {
+	id = strings.Trim(strings.TrimSpace(id), "*`_")
+	return strings.TrimRight(id, ".")
+}
+
+func extractStatusText(content string) string {
+	lines := strings.Split(content, "\n")
+	inStatus := false
+	for _, raw := range lines {
+		line := strings.TrimSpace(raw)
+		if line == "## Status" {
+			inStatus = true
+			continue
+		}
+		if !inStatus {
+			continue
+		}
+		if strings.HasPrefix(line, "## ") {
+			break
+		}
+		if line == "" {
+			continue
+		}
+		return strings.ToLower(line)
+	}
+	return ""
 }

@@ -161,6 +161,20 @@ func TestRunHealthEndToEnd(t *testing.T) {
 	}
 }
 
+func TestRunLintWithNestedIndexEndToEnd(t *testing.T) {
+	repo := sampleNestedIndexRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"lint", "--repo", repo.Dir, "--branch", "main", "--index", "protocols/wire-lab.d/TODO/TODO.md", "--format", "text"}); err != nil {
+			t.Fatalf("run lint: %v", err)
+		}
+	})
+
+	if !strings.Contains(out, "WARNING orphan_detail_file") {
+		t.Fatalf("expected orphan detail warning in %q", out)
+	}
+}
+
 func sampleCLIRepo(t *testing.T) *testrepo.Repo {
 	t.Helper()
 
@@ -174,6 +188,19 @@ func sampleCLIRepo(t *testing.T) *testrepo.Repo {
 	repo.Write("TODO/TODO-ravud.md", "# TODO-ravud\n\n- [ ] ravud.1 Branch-only subtask\n")
 	repo.Write("TODO/TODO-orphan.md", "# TODO-orphan\n\n- [ ] orphan.1 Unreferenced detail file\n")
 	repo.Commit("Update jj", "2026-01-02T00:00:00Z")
+
+	return repo
+}
+
+func sampleNestedIndexRepo(t *testing.T) *testrepo.Repo {
+	t.Helper()
+
+	repo := testrepo.New(t)
+	repo.Write("protocols/wire-lab.d/TODO/TODO.md", "# TODO queue\n\n| Handle | Mint date | Title | Prior alias |\n|---|---|---|---|\n| [TODO-hipak](./TODO-hipak-local.md) | 2026-05-25 | Local title | — |\n| [TODO-bisur](../../../simulations/SIM-rakot-group-session/protocols/group-session.d/TODO/TODO-bisur-group-transport-envelope.md) | 2026-05-01 | Cross-tree title | — |\n")
+	repo.Write("protocols/wire-lab.d/TODO/TODO-hipak-local.md", "# TODO-hipak\n\n## Status\n\nRunning.\n\n## Subtasks\n\n- [ ] hipak.1 First subtask\n")
+	repo.Write("protocols/wire-lab.d/TODO/TODO-orphan-local.md", "# TODO-orphan\n\n## Status\n\nPlanned.\n")
+	repo.Write("simulations/SIM-rakot-group-session/protocols/group-session.d/TODO/TODO-bisur-group-transport-envelope.md", "# TODO-bisur\n\n## Status\n\nImplemented.\n\n## Subtasks\n\n- [x] bisur.1 Done subtask\n")
+	repo.Commit("Seed nested index", "2026-01-01T00:00:00Z")
 
 	return repo
 }

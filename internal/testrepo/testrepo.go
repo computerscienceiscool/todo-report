@@ -1,9 +1,11 @@
 package testrepo
 
 import (
+	"bytes"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -38,8 +40,9 @@ func (r *Repo) Write(path, content string) {
 func (r *Repo) Commit(message, when string) {
 	r.t.Helper()
 
-	run(r.t, r.Dir, "git", "add", "TODO/TODO.md")
-	run(r.t, r.Dir, "git", "add", "TODO")
+	for _, path := range changedPaths(r.t, r.Dir) {
+		run(r.t, r.Dir, "git", "add", path)
+	}
 	cmd := exec.Command("git", "commit", "-m", message)
 	cmd.Dir = r.Dir
 	cmd.Env = append(os.Environ(), "GIT_AUTHOR_DATE="+when, "GIT_COMMITTER_DATE="+when)
@@ -65,4 +68,26 @@ func run(t *testing.T, dir string, name string, args ...string) {
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("%s %v: %v\n%s", name, args, err, string(out))
 	}
+}
+
+func changedPaths(t *testing.T, dir string) []string {
+	t.Helper()
+
+	cmd := exec.Command("git", "status", "--porcelain")
+	cmd.Dir = dir
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("git status --porcelain: %v\n%s", err, stderr.String())
+	}
+
+	var paths []string
+	for _, line := range strings.Split(stdout.String(), "\n") {
+		if strings.TrimSpace(line) == "" || len(line) < 4 {
+			continue
+		}
+		paths = append(paths, strings.TrimSpace(line[3:]))
+	}
+	return paths
 }

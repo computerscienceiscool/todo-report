@@ -10,7 +10,7 @@ import (
 )
 
 func Compute(repo *gitrepo.Repo, snapshot model.Snapshot) ([]model.AgeRecord, error) {
-	history, err := repo.ReverseLog(snapshot.Branch, "TODO/TODO.md")
+	history, err := repo.ReverseLog(snapshot.Branch, snapshot.IndexFile)
 	if err != nil {
 		return nil, err
 	}
@@ -22,11 +22,11 @@ func Compute(repo *gitrepo.Repo, snapshot model.Snapshot) ([]model.AgeRecord, er
 	}
 
 	for _, entry := range history {
-		content, err := repo.ShowFile(entry.Commit, "TODO/TODO.md")
+		content, err := repo.ShowFile(entry.Commit, snapshot.IndexFile)
 		if err != nil {
 			continue
 		}
-		items, _ := todo.ParseIndex(snapshot.RepoName, snapshot.Branch, entry.Commit, "TODO/TODO.md", content)
+		items, _ := todo.ParseIndex(snapshot.RepoName, snapshot.Branch, entry.Commit, snapshot.IndexFile, content)
 		for _, item := range items {
 			if _, ok := wanted[item.TodoID]; !ok {
 				continue

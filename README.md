@@ -45,8 +45,8 @@ and later tools can import those reports as evidence.
 
 ## Repo assumptions
 
-`todo-report` currently assumes the inspected repo stores its active TODO index
-at `TODO/TODO.md` relative to the Git repo root.
+By default, `todo-report` assumes the inspected repo stores its active TODO
+index at `TODO/TODO.md` relative to the Git repo root.
 
 That means it works well for repos shaped like:
 
@@ -57,8 +57,15 @@ repo/
     TODO-binap-something.md
 ```
 
-It does not yet support monorepos where the active TODO index lives deeper in
-the tree, such as `protocols/wire-lab.d/TODO/TODO.md`.
+For repos whose active TODO index lives deeper in the tree, pass `--index` with
+the authoritative index path relative to repo root, for example:
+
+```bash
+todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-lab.d/TODO/TODO.md
+```
+
+Relative detail links inside that index are resolved from the index file's own
+directory.
 
 ## Supported TODO styles
 
@@ -74,8 +81,12 @@ Detail-file subtask IDs keep their native form, including nested forms:
 - `binap.2.1`
 - `binap.2.1.1`
 - `2.1`
+- `Q-22.1`
+- `UT-PSTK-origin`
 
 Subtask hierarchy is not capped by the parser.
+Checkbox-style detail subtasks accept `[ ]`, `[x]`, and `[~]`; `[~]` is treated
+as open/in-progress for reporting purposes.
 
 ## Commands
 
@@ -102,7 +113,7 @@ Compares TODO state across two branches.
 todo-report lint --repo /path/to/repo --branch main
 ```
 
-Validates the TODO structure rooted at `TODO/TODO.md`.
+Validates the TODO structure rooted at the selected index file.
 
 ### `health`
 
@@ -142,7 +153,7 @@ Format guidance:
 - reports malformed subtask IDs on checkbox-style detail-file subtask lines
 - reports invalid checkbox syntax
 - reports missing detail files
-- reports referenced subtasks not found
+- reports referenced subtasks not found within the same parent TODO detail file
 - reports checked parents with open subtasks
 - reports orphaned `TODO/TODO-*.md` detail files as warnings
 
@@ -170,6 +181,12 @@ TSV for shell tools:
 
 ```bash
 todo-report age --repo ~/lab/cswg/coordination --branch jj --format tsv
+```
+
+Nested-index repo:
+
+```bash
+todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-lab.d/TODO/TODO.md
 ```
 
 More concrete examples live in [docs/cli-examples.md](docs/cli-examples.md).

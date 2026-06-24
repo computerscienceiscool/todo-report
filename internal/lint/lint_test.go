@@ -19,7 +19,7 @@ func TestRunFindsOrphanAndCheckedParentWarnings(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	snapshot, err := todo.LoadSnapshot(repo, "main")
+	snapshot, err := todo.LoadSnapshot(repo, "main", "TODO/TODO.md")
 	if err != nil {
 		t.Fatal(err)
 	}
