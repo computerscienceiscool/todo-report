@@ -108,6 +108,8 @@ type HealthReport struct {
 	CompareBranch     string         `json:"compare_branch,omitempty"`
 	IndexFile         string         `json:"index_file"`
 	TodoRoot          string         `json:"todo_root"`
+	PresentInBranch   bool           `json:"present_in_branch"`
+	PresentInCompare  bool           `json:"present_in_compare,omitempty"`
 	Status            string         `json:"status"`
 	OpenTODOs         int            `json:"open_todos"`
 	CompletedTODOs    int            `json:"completed_todos"`
@@ -123,15 +125,20 @@ type HealthReport struct {
 }
 
 type MultiHealthReport struct {
-	Repo               string         `json:"repo"`
-	Branch             string         `json:"branch"`
-	Status             string         `json:"status"`
-	IndexFiles         []string       `json:"index_files"`
-	Reports            []HealthReport `json:"reports"`
-	OpenTODOs          int            `json:"open_todos"`
-	CompletedTODOs     int            `json:"completed_todos"`
-	LintErrors         int            `json:"lint_errors"`
-	LintWarnings       int            `json:"lint_warnings"`
-	IndexesWithErrors  int            `json:"indexes_with_errors"`
-	IndexesWithWarning int            `json:"indexes_with_warnings"`
+	Repo                 string         `json:"repo"`
+	Branch               string         `json:"branch"`
+	CompareBranch        string         `json:"compare_branch,omitempty"`
+	Status               string         `json:"status"`
+	IndexFiles           []string       `json:"index_files"`
+	Reports              []HealthReport `json:"reports"`
+	IndexesOnlyInBranch  []string       `json:"indexes_only_in_branch,omitempty"`
+	IndexesOnlyInCompare []string       `json:"indexes_only_in_compare,omitempty"`
+	OpenTODOs            int            `json:"open_todos"`
+	CompletedTODOs       int            `json:"completed_todos"`
+	LintErrors           int            `json:"lint_errors"`
+	LintWarnings         int            `json:"lint_warnings"`
+	DriftItems           int            `json:"drift_items"`
+	IndexesWithDrift     int            `json:"indexes_with_drift"`
+	IndexesWithErrors    int            `json:"indexes_with_errors"`
+	IndexesWithWarning   int            `json:"indexes_with_warnings"`
 }

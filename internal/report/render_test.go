@@ -171,19 +171,19 @@ func TestRenderHealthFormats(t *testing.T) {
 
 func TestRenderMultiHealthFormats(t *testing.T) {
 	reports := []model.HealthReport{
-		{Repo: "coordination", Branch: "jj", IndexFile: "TODO/TODO.md", Status: "warning", OpenTODOs: 2, CompletedTODOs: 1, LintWarnings: 1},
+		{Repo: "coordination", Branch: "jj", IndexFile: "TODO/TODO.md", Status: "warning", OpenTODOs: 2, CompletedTODOs: 1, LintWarnings: 1, Drift: &model.DriftResult{TotalDifferenceRows: 2}},
 		{Repo: "coordination", Branch: "jj", IndexFile: "protocols/wire-lab.d/TODO/TODO.md", Status: "error", OpenTODOs: 5, CompletedTODOs: 2, LintErrors: 3},
 	}
-	multi := health.BuildMulti("coordination", "jj", reports)
+	multi := health.BuildMulti("coordination", "jj", "main", reports, []string{"TODO/TODO.md"}, []string{"simulations/SIM-beta/TODO/TODO.md"})
 
 	tests := []struct {
 		format string
 		want   []string
 	}{
-		{format: "text", want: []string{"Discovered indexes: 2", "TODO/TODO.md", "protocols/wire-lab.d/TODO/TODO.md"}},
-		{format: "markdown", want: []string{"## Multi-Index Health Report", "### Index Summaries", "`TODO/TODO.md`"}},
-		{format: "json", want: []string{`"index_files": [`, `"lint_errors": 3`}},
-		{format: "tsv", want: []string{"scope\tindex_file\tstatus", "summary\t(all)\terror", "index\tTODO/TODO.md\twarning"}},
+		{format: "text", want: []string{"Discovered indexes: 3", "Compare branch: main", "Repo-wide drift rows: 2", "Indexes only in jj:"}},
+		{format: "markdown", want: []string{"## Multi-Index Health Report", "### Index Summaries", "### Indexes Only in jj", "`TODO/TODO.md`"}},
+		{format: "json", want: []string{`"index_files": [`, `"lint_errors": 3`, `"drift_items": 2`}},
+		{format: "tsv", want: []string{"scope\tindex_file\tstatus", "summary\t(all)\terror\t7\t3\t3\t1\t2", "only_in_main\tsimulations/SIM-beta/TODO/TODO.md\twarning"}},
 	}
 
 	for _, tc := range tests {

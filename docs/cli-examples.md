@@ -93,12 +93,27 @@ todo-report health \
 This is useful for monorepos that have one master queue plus multiple nested or
 simulation-specific TODO roots.
 
+Compare all discovered indexes across two branches:
+
+```bash
+todo-report health \
+  --repo ~/lab/cswg/coordination \
+  --branch jj \
+  --all-indexes \
+  --compare main \
+  --format text
+```
+
+This is useful when the repo has multiple authoritative TODO roots and the team
+needs repo-wide drift totals plus branch-only index visibility.
+
 ## Known limitations
 
 - Root-level `TODO/TODO.md` is still the default, but nested indexes are
   supported through `--index`.
-- `health --all-indexes` discovers indexes on the selected branch and does not
-  yet combine that mode with `--compare`.
+- `health --all-indexes --compare` keeps open/completed/lint totals anchored to
+  the selected branch and adds repo-wide drift and branch-only index lists for
+  the comparison branch.
 - Cross-TODO references like `TODO-foo/bar` are not treated as missing subtasks
   in the current parent detail file.
 - Checkbox-style detail subtasks accept `[ ]`, `[x]`, and `[~]`, with `[~]`

@@ -33,6 +33,8 @@ func Build(snapshot model.Snapshot, ages []model.AgeRecord, findings []model.Lin
 		CompareBranch:     compareBranch,
 		IndexFile:         snapshot.IndexFile,
 		TodoRoot:          snapshot.TodoRoot,
+		PresentInBranch:   true,
+		PresentInCompare:  compareBranch == "",
 		Status:            deriveStatus(errorsCount, warningsCount, driftResult),
 		OpenTODOs:         openCount,
 		CompletedTODOs:    completedCount,
@@ -48,12 +50,15 @@ func Build(snapshot model.Snapshot, ages []model.AgeRecord, findings []model.Lin
 	}
 }
 
-func BuildMulti(repoName, branch string, reports []model.HealthReport) model.MultiHealthReport {
+func BuildMulti(repoName, branch, compareBranch string, reports []model.HealthReport, onlyInBranch, onlyInCompare []string) model.MultiHealthReport {
 	indexes := make([]string, 0, len(reports))
 	result := model.MultiHealthReport{
-		Repo:    repoName,
-		Branch:  branch,
-		Reports: reports,
+		Repo:                 repoName,
+		Branch:               branch,
+		CompareBranch:        compareBranch,
+		Reports:              reports,
+		IndexesOnlyInBranch:  onlyInBranch,
+		IndexesOnlyInCompare: onlyInCompare,
 	}
 
 	for _, report := range reports {
@@ -62,6 +67,12 @@ func BuildMulti(repoName, branch string, reports []model.HealthReport) model.Mul
 		result.CompletedTODOs += report.CompletedTODOs
 		result.LintErrors += report.LintErrors
 		result.LintWarnings += report.LintWarnings
+		if report.Drift != nil {
+			result.DriftItems += report.Drift.TotalDifferenceRows
+			if report.Drift.TotalDifferenceRows > 0 {
+				result.IndexesWithDrift++
+			}
+		}
 		switch report.Status {
 		case "error":
 			result.IndexesWithErrors++
@@ -69,6 +80,7 @@ func BuildMulti(repoName, branch string, reports []model.HealthReport) model.Mul
 			result.IndexesWithWarning++
 		}
 	}
+	indexes = append(indexes, onlyInCompare...)
 	sort.Strings(indexes)
 	result.IndexFiles = indexes
 	result.Status = deriveMultiStatus(result)
@@ -138,6 +150,8 @@ func deriveMultiStatus(report model.MultiHealthReport) string {
 	case report.LintErrors > 0:
 		return "error"
 	case report.LintWarnings > 0 || report.IndexesWithWarning > 0:
+		return "warning"
+	case report.DriftItems > 0 || len(report.IndexesOnlyInBranch) > 0 || len(report.IndexesOnlyInCompare) > 0:
 		return "warning"
 	default:
 		return "clean"

@@ -287,10 +287,20 @@ func RenderMultiHealth(report model.MultiHealthReport, format string) (string, e
 		return marshal(report)
 	case "tsv":
 		var b strings.Builder
-		b.WriteString("scope\tindex_file\tstatus\topen_todos\tcompleted_todos\tlint_errors\tlint_warnings\n")
-		fmt.Fprintf(&b, "summary\t(all)\t%s\t%d\t%d\t%d\t%d\n", report.Status, report.OpenTODOs, report.CompletedTODOs, report.LintErrors, report.LintWarnings)
+		b.WriteString("scope\tindex_file\tstatus\topen_todos\tcompleted_todos\tlint_errors\tlint_warnings\tdrift_items\n")
+		fmt.Fprintf(&b, "summary\t(all)\t%s\t%d\t%d\t%d\t%d\t%d\n", report.Status, report.OpenTODOs, report.CompletedTODOs, report.LintErrors, report.LintWarnings, report.DriftItems)
 		for _, entry := range report.Reports {
-			fmt.Fprintf(&b, "index\t%s\t%s\t%d\t%d\t%d\t%d\n", entry.IndexFile, entry.Status, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
+			driftItems := 0
+			if entry.Drift != nil {
+				driftItems = entry.Drift.TotalDifferenceRows
+			}
+			fmt.Fprintf(&b, "index\t%s\t%s\t%d\t%d\t%d\t%d\t%d\n", entry.IndexFile, entry.Status, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings, driftItems)
+		}
+		for _, index := range report.IndexesOnlyInBranch {
+			fmt.Fprintf(&b, "only_in_%s\t%s\twarning\t0\t0\t0\t0\t0\n", report.Branch, index)
+		}
+		for _, index := range report.IndexesOnlyInCompare {
+			fmt.Fprintf(&b, "only_in_%s\t%s\twarning\t0\t0\t0\t0\t0\n", report.CompareBranch, index)
 		}
 		return b.String(), nil
 	case "markdown":
@@ -298,33 +308,81 @@ func RenderMultiHealth(report model.MultiHealthReport, format string) (string, e
 		b.WriteString("## Multi-Index Health Report\n\n")
 		fmt.Fprintf(&b, "- Repo: `%s`\n", report.Repo)
 		fmt.Fprintf(&b, "- Branch: `%s`\n", report.Branch)
+		if report.CompareBranch != "" {
+			fmt.Fprintf(&b, "- Compare branch: `%s`\n", report.CompareBranch)
+		}
 		fmt.Fprintf(&b, "- Status: `%s`\n", report.Status)
 		fmt.Fprintf(&b, "- Discovered indexes: %d\n", len(report.IndexFiles))
 		fmt.Fprintf(&b, "- Open TODOs: %d\n", report.OpenTODOs)
 		fmt.Fprintf(&b, "- Completed TODOs: %d\n", report.CompletedTODOs)
 		fmt.Fprintf(&b, "- Lint errors: %d\n", report.LintErrors)
-		fmt.Fprintf(&b, "- Lint warnings: %d\n\n", report.LintWarnings)
+		fmt.Fprintf(&b, "- Lint warnings: %d\n", report.LintWarnings)
+		if report.CompareBranch != "" {
+			fmt.Fprintf(&b, "- Repo-wide drift rows: %d\n", report.DriftItems)
+		}
+		b.WriteString("\n")
 		b.WriteString("### Index Summaries\n\n")
 		for _, entry := range report.Reports {
+			if entry.Drift != nil {
+				fmt.Fprintf(&b, "- [ ] `%s` - status `%s`, open %d, completed %d, lint errors %d, lint warnings %d, drift rows %d\n",
+					entry.IndexFile, entry.Status, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings, entry.Drift.TotalDifferenceRows)
+				continue
+			}
 			fmt.Fprintf(&b, "- [ ] `%s` - status `%s`, open %d, completed %d, lint errors %d, lint warnings %d\n",
 				entry.IndexFile, entry.Status, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
 		}
 		b.WriteString("\n")
+		if len(report.IndexesOnlyInBranch) > 0 {
+			fmt.Fprintf(&b, "### Indexes Only in %s\n\n", report.Branch)
+			for _, index := range report.IndexesOnlyInBranch {
+				fmt.Fprintf(&b, "- [ ] `%s`\n", index)
+			}
+			b.WriteString("\n")
+		}
+		if len(report.IndexesOnlyInCompare) > 0 {
+			fmt.Fprintf(&b, "### Indexes Only in %s\n\n", report.CompareBranch)
+			for _, index := range report.IndexesOnlyInCompare {
+				fmt.Fprintf(&b, "- [ ] `%s`\n", index)
+			}
+			b.WriteString("\n")
+		}
 		return b.String(), nil
 	case "text":
 		var b strings.Builder
 		fmt.Fprintf(&b, "Repo: %s\n", report.Repo)
 		fmt.Fprintf(&b, "Branch: %s\n", report.Branch)
+		if report.CompareBranch != "" {
+			fmt.Fprintf(&b, "Compare branch: %s\n", report.CompareBranch)
+		}
 		fmt.Fprintf(&b, "Status: %s\n", strings.ToUpper(report.Status))
 		fmt.Fprintf(&b, "Discovered indexes: %d\n", len(report.IndexFiles))
 		fmt.Fprintf(&b, "Open TODOs: %d\n", report.OpenTODOs)
 		fmt.Fprintf(&b, "Completed TODOs: %d\n", report.CompletedTODOs)
 		fmt.Fprintf(&b, "Lint errors: %d\n", report.LintErrors)
 		fmt.Fprintf(&b, "Lint warnings: %d\n", report.LintWarnings)
+		if report.CompareBranch != "" {
+			fmt.Fprintf(&b, "Repo-wide drift rows: %d\n", report.DriftItems)
+		}
 		b.WriteString("\nIndex summaries:\n")
 		for _, entry := range report.Reports {
-			fmt.Fprintf(&b, "  %s\t%s\topen=%d\tcompleted=%d\terrors=%d\twarnings=%d\n",
-				entry.IndexFile, strings.ToUpper(entry.Status), entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
+			driftSuffix := ""
+			if entry.Drift != nil {
+				driftSuffix = fmt.Sprintf("\tdrift=%d", entry.Drift.TotalDifferenceRows)
+			}
+			fmt.Fprintf(&b, "  %s\t%s\topen=%d\tcompleted=%d\terrors=%d\twarnings=%d%s\n",
+				entry.IndexFile, strings.ToUpper(entry.Status), entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings, driftSuffix)
+		}
+		if len(report.IndexesOnlyInBranch) > 0 {
+			fmt.Fprintf(&b, "\nIndexes only in %s:\n", report.Branch)
+			for _, index := range report.IndexesOnlyInBranch {
+				fmt.Fprintf(&b, "  %s\n", index)
+			}
+		}
+		if len(report.IndexesOnlyInCompare) > 0 {
+			fmt.Fprintf(&b, "\nIndexes only in %s:\n", report.CompareBranch)
+			for _, index := range report.IndexesOnlyInCompare {
+				fmt.Fprintf(&b, "  %s\n", index)
+			}
 		}
 		return b.String(), nil
 	default:

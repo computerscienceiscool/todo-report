@@ -132,11 +132,14 @@ Validates the TODO structure rooted at the selected index file.
 todo-report health --repo /path/to/repo --branch main
 todo-report health --repo /path/to/repo --branch main --compare jj
 todo-report health --repo /path/to/repo --branch main --all-indexes
+todo-report health --repo /path/to/repo --branch main --all-indexes --compare jj
 ```
 
 Summarizes repo TODO health and can optionally include branch drift counts.
 With `--all-indexes`, it discovers every authoritative TODO index on the
-selected branch and reports a combined monorepo summary.
+selected branch and reports a combined monorepo summary. With
+`--all-indexes --compare`, totals stay anchored to the selected branch while
+repo-wide drift and branch-only index lists are added for the comparison.
 
 ## Output formats
 
@@ -183,6 +186,12 @@ Multi-index monorepo summary:
 
 ```bash
 todo-report health --repo ~/lab/wire-lab --branch main --all-indexes
+```
+
+Multi-index monorepo comparison:
+
+```bash
+todo-report health --repo ~/lab/wire-lab --branch main --all-indexes --compare jj
 ```
 
 Markdown report for GitHub:

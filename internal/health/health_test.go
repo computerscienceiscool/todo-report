@@ -49,11 +49,11 @@ func TestBuildSummarizesHealthReport(t *testing.T) {
 
 func TestBuildMultiAggregatesReports(t *testing.T) {
 	reports := []model.HealthReport{
-		{IndexFile: "TODO/TODO.md", Status: "warning", OpenTODOs: 2, CompletedTODOs: 1, LintWarnings: 3},
+		{IndexFile: "TODO/TODO.md", Status: "warning", OpenTODOs: 2, CompletedTODOs: 1, LintWarnings: 3, Drift: &model.DriftResult{TotalDifferenceRows: 2}},
 		{IndexFile: "protocols/wire-lab.d/TODO/TODO.md", Status: "error", OpenTODOs: 5, CompletedTODOs: 2, LintErrors: 1},
 	}
 
-	report := BuildMulti("wire-lab", "main", reports)
+	report := BuildMulti("wire-lab", "main", "jj", reports, []string{"TODO/TODO.md"}, []string{"simulations/SIM-beta/TODO/TODO.md"})
 	if report.Status != "error" {
 		t.Fatalf("expected error status, got %q", report.Status)
 	}
@@ -63,7 +63,13 @@ func TestBuildMultiAggregatesReports(t *testing.T) {
 	if report.IndexesWithErrors != 1 || report.IndexesWithWarning != 1 {
 		t.Fatalf("unexpected index severity counts %#v", report)
 	}
-	if len(report.IndexFiles) != 2 || report.IndexFiles[0] != "TODO/TODO.md" {
+	if report.DriftItems != 2 || report.IndexesWithDrift != 1 {
+		t.Fatalf("unexpected drift aggregation %#v", report)
+	}
+	if len(report.IndexesOnlyInBranch) != 1 || len(report.IndexesOnlyInCompare) != 1 {
+		t.Fatalf("unexpected branch-only index lists %#v", report)
+	}
+	if len(report.IndexFiles) != 3 || report.IndexFiles[0] != "TODO/TODO.md" {
 		t.Fatalf("unexpected index files %#v", report.IndexFiles)
 	}
 }

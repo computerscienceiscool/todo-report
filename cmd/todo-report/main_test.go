@@ -51,11 +51,6 @@ func TestRunErrors(t *testing.T) {
 			args: []string{"indexes"},
 			want: "indexes requires --branch",
 		},
-		{
-			name: "health all indexes compare unsupported",
-			args: []string{"health", "--branch", "main", "--all-indexes", "--compare", "jj"},
-			want: "health does not support --compare with --all-indexes",
-		},
 	}
 
 	for _, tc := range tests {
@@ -203,6 +198,22 @@ func TestRunHealthAllIndexesEndToEnd(t *testing.T) {
 	}
 }
 
+func TestRunHealthAllIndexesCompareEndToEnd(t *testing.T) {
+	repo := sampleMultiIndexCompareRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"health", "--repo", repo.Dir, "--branch", "main", "--all-indexes", "--compare", "jj", "--format", "text"}); err != nil {
+			t.Fatalf("run health all indexes compare: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Compare branch: jj", "Repo-wide drift rows:", "Indexes only in jj:", "drift=3"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
 func TestRunLintWithNestedIndexEndToEnd(t *testing.T) {
 	repo := sampleNestedIndexRepo(t)
 
@@ -256,6 +267,29 @@ func sampleMultiIndexRepo(t *testing.T) *testrepo.Repo {
 	repo.Write("protocols/wire-lab.d/TODO/TODO.md", "# TODO queue\n\n| Handle | Mint date | Title | Prior alias |\n|---|---|---|---|\n| [TODO-hipak](./TODO-hipak-local.md) | 2026-05-25 | Local title | — |\n")
 	repo.Write("protocols/wire-lab.d/TODO/TODO-hipak-local.md", "# TODO-hipak\n\n## Status\n\nRunning.\n\n## Subtasks\n\n- [ ] hipak.1 First subtask\n")
 	repo.Commit("Seed multi index", "2026-01-01T00:00:00Z")
+
+	return repo
+}
+
+func sampleMultiIndexCompareRepo(t *testing.T) *testrepo.Repo {
+	t.Helper()
+
+	repo := testrepo.New(t)
+	repo.Write("TODO/TODO.md", "# TODO Index\n\n- [ ] TODO-roota - Root task (`TODO/TODO-roota.md`)\n")
+	repo.Write("TODO/TODO-roota.md", "# TODO-roota\n\n- [ ] roota.1 Root subtask\n")
+	repo.Write("protocols/wire-lab.d/TODO/TODO.md", "# TODO queue\n\n| Handle | Mint date | Title | Prior alias |\n|---|---|---|---|\n| [TODO-hipak](./TODO-hipak-local.md) | 2026-05-25 | Local title | — |\n")
+	repo.Write("protocols/wire-lab.d/TODO/TODO-hipak-local.md", "# TODO-hipak\n\n## Status\n\nRunning.\n\n## Subtasks\n\n- [ ] hipak.1 First subtask\n")
+	repo.Write("simulations/SIM-alpha/TODO/TODO.md", "# TODO Index\n\n- [ ] TODO-alpha - Alpha task (`simulations/SIM-alpha/TODO/TODO-alpha.md`)\n")
+	repo.Write("simulations/SIM-alpha/TODO/TODO-alpha.md", "# TODO-alpha\n\n- [ ] alpha.1 Alpha subtask\n")
+	repo.Commit("Seed multi index compare", "2026-01-01T00:00:00Z")
+
+	repo.CheckoutNew("jj")
+	repo.Write("TODO/TODO.md", "# TODO Index\n\n- [x] TODO-roota - Root task (`TODO/TODO-roota.md`)\n")
+	repo.Write("protocols/wire-lab.d/TODO/TODO.md", "# TODO queue\n\n| Handle | Mint date | Title | Prior alias |\n|---|---|---|---|\n| [TODO-hipak](./TODO-hipak-local.md) | 2026-05-25 | Local title updated | — |\n")
+	repo.Write("protocols/wire-lab.d/TODO/TODO-hipak-local.md", "# TODO-hipak\n\n## Status\n\nImplemented.\n\n## Subtasks\n\n- [x] hipak.1 First subtask\n")
+	repo.Write("simulations/SIM-beta/TODO/TODO.md", "# TODO Index\n\n- [ ] TODO-beta - Beta task (`simulations/SIM-beta/TODO/TODO-beta.md`)\n")
+	repo.Write("simulations/SIM-beta/TODO/TODO-beta.md", "# TODO-beta\n\n- [ ] beta.1 Beta subtask\n")
+	repo.Commit("Diverge multi indexes", "2026-01-02T00:00:00Z")
 
 	return repo
 }

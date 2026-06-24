@@ -221,9 +221,6 @@ func runHealth(args []string) error {
 	if *branch == "" {
 		return errors.New("health requires --branch")
 	}
-	if *allIndexes && *compare != "" {
-		return errors.New("health does not support --compare with --all-indexes")
-	}
 
 	repo, err := gitrepo.Open(*repoPath)
 	if err != nil {
@@ -235,16 +232,34 @@ func runHealth(args []string) error {
 		if err != nil {
 			return err
 		}
-		reports := make([]model.HealthReport, 0, len(indexes))
-		for _, discovered := range indexes {
-			reportData, err := loadHealthReport(repo, *branch, discovered, "")
+		var compareIndexes []string
+		if *compare != "" {
+			compareIndexes, err = todo.DiscoverIndexes(repo, *compare)
 			if err != nil {
 				return err
+			}
+		}
+		branchIndexSet := makeSet(indexes)
+		compareIndexSet := makeSet(compareIndexes)
+		onlyInBranch, onlyInCompare := diffSets(branchIndexSet, compareIndexSet)
+		reports := make([]model.HealthReport, 0, len(indexes))
+		for _, discovered := range indexes {
+			compareForIndex := ""
+			if *compare != "" && compareIndexSet[discovered] {
+				compareForIndex = *compare
+			}
+			reportData, err := loadHealthReport(repo, *branch, discovered, compareForIndex)
+			if err != nil {
+				return err
+			}
+			reportData.PresentInCompare = compareForIndex == *compare && compareForIndex != ""
+			if *compare != "" && !compareIndexSet[discovered] {
+				reportData.Status = escalateStatus(reportData.Status)
 			}
 			reports = append(reports, reportData)
 		}
 		sort.Slice(reports, func(i, j int) bool { return reports[i].IndexFile < reports[j].IndexFile })
-		out, err := report.RenderMultiHealth(healthcalc.BuildMulti(repo.Name, *branch, reports), formatValue)
+		out, err := report.RenderMultiHealth(healthcalc.BuildMulti(repo.Name, *branch, *compare, reports, onlyInBranch, onlyInCompare), formatValue)
 		if err != nil {
 			return err
 		}
@@ -305,5 +320,42 @@ func loadHealthReport(repo *gitrepo.Repo, branch, indexPath, compare string) (mo
 		driftResult = &result
 	}
 
-	return healthcalc.Build(snapshot, ages, findings, driftResult, compare), nil
+	report := healthcalc.Build(snapshot, ages, findings, driftResult, compare)
+	if compare != "" {
+		report.PresentInCompare = true
+	}
+	return report, nil
+}
+
+func makeSet(values []string) map[string]bool {
+	out := make(map[string]bool, len(values))
+	for _, value := range values {
+		out[value] = true
+	}
+	return out
+}
+
+func diffSets(left, right map[string]bool) (onlyLeft, onlyRight []string) {
+	for value := range left {
+		if !right[value] {
+			onlyLeft = append(onlyLeft, value)
+		}
+	}
+	for value := range right {
+		if !left[value] {
+			onlyRight = append(onlyRight, value)
+		}
+	}
+	sort.Strings(onlyLeft)
+	sort.Strings(onlyRight)
+	return onlyLeft, onlyRight
+}
+
+func escalateStatus(status string) string {
+	switch status {
+	case "error", "warning":
+		return status
+	default:
+		return "warning"
+	}
 }
