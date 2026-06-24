@@ -13,13 +13,16 @@ import (
 
 var (
 	indexLineRE     = regexp.MustCompile(`^\s*(?:-\s*)?(?:\[( |x|X|~)\]\s+)?([A-Za-z0-9-]+)\s+-\s+(.+?)(?:\s+\(` + "`([^`]+)`" + `\))?\s*$`)
+	indexFileStemRE = regexp.MustCompile(`^\s*(?:-\s*)?(?:\[( |x|X|~)\]\s+)?([A-Za-z0-9][A-Za-z0-9.-]*\.md)\s+(.+?)\s*$`)
 	subtaskLineRE   = regexp.MustCompile(`^\s*-\s+\[( |x|X|~)\]\s+(\S+)(?:\s+(.+?))?\s*$`)
 	indexTableRowRE = regexp.MustCompile(`^\|\s*\[([A-Za-z0-9-]+)\]\(([^)]+)\)\s*\|\s*([^|]*)\|\s*(.*?)\s*\|\s*([^|]*)\|\s*$`)
 	badCheckboxRE   = regexp.MustCompile(`^\s*-\s+\[[^ xX~]\]`)
 	targetRefRE     = regexp.MustCompile(`\b(TODO-[a-z]{5})/([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*)\b`)
 	proquintRE      = regexp.MustCompile(`^TODO-[a-z]{5}$`)
+	bareProquintRE  = regexp.MustCompile(`^[a-z]{5}$`)
 	legacyNumericRE = regexp.MustCompile(`^\d{3,4}$`)
 	legacyLetterRE  = regexp.MustCompile(`^[A-Za-z]\d{2,4}$`)
+	filenameStemRE  = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9.-]*\.md$`)
 )
 
 func LoadSnapshot(repo *gitrepo.Repo, branch, indexPath string) (model.Snapshot, error) {
@@ -51,6 +54,7 @@ func LoadSnapshot(repo *gitrepo.Repo, branch, indexPath string) (model.Snapshot,
 		TodoRoot:         todoRoot,
 		Items:            items,
 		ItemByID:         make(map[string]model.TodoItem, len(items)),
+		IndexStatusByID:  make(map[string]model.Status, len(items)),
 		SubtasksByParent: make(map[string][]model.Subtask),
 		SubtaskByTarget:  make(map[string]model.Subtask),
 		DetailFiles:      make(map[string]string),
@@ -65,6 +69,7 @@ func LoadSnapshot(repo *gitrepo.Repo, branch, indexPath string) (model.Snapshot,
 	}
 	for _, item := range items {
 		snapshot.ItemByID[item.TodoID] = item
+		snapshot.IndexStatusByID[item.TodoID] = item.Status
 		if item.DetailFile != "" {
 			snapshot.DetailFiles[item.TodoID] = item.DetailFile
 		}
@@ -147,13 +152,36 @@ func ParseIndex(repoName, branch, commit, file, content string) ([]model.TodoIte
 		}
 		matches := indexLineRE.FindStringSubmatch(line)
 		if matches != nil {
-			status := model.StatusOpen
-			if strings.EqualFold(matches[1], "x") {
-				status = model.StatusCompleted
-			}
+			status := parseCheckboxStatus(matches[1])
 			todoID := matches[2]
 			title := strings.TrimSpace(matches[3])
 			detailFile := resolveDetailPath(indexDir, strings.TrimSpace(matches[4]))
+
+			findings = append(findings, validateTopLevelItem(todoID, detailFile, file, lineNo, seen)...)
+			if _, ok := seen[todoID]; !ok {
+				seen[todoID] = lineNo
+			}
+
+			items = append(items, model.TodoItem{
+				Repo:       repoName,
+				Branch:     branch,
+				CommitHash: commit,
+				TodoID:     todoID,
+				Title:      title,
+				Status:     status,
+				SourceFile: file,
+				DetailFile: detailFile,
+				Line:       lineNo,
+			})
+			continue
+		}
+
+		stemMatches := indexFileStemRE.FindStringSubmatch(line)
+		if stemMatches != nil {
+			status := parseCheckboxStatus(stemMatches[1])
+			todoID := stemMatches[2]
+			title := strings.TrimSpace(stemMatches[3])
+			detailFile := resolveDetailPath(indexDir, todoID)
 
 			findings = append(findings, validateTopLevelItem(todoID, detailFile, file, lineNo, seen)...)
 			if _, ok := seen[todoID]; !ok {
@@ -298,7 +326,7 @@ func ParseDetail(repoName, branch, commit string, parent model.TodoItem, file, c
 }
 
 func validTopLevelID(id string) bool {
-	return proquintRE.MatchString(id) || legacyNumericRE.MatchString(id) || legacyLetterRE.MatchString(id)
+	return proquintRE.MatchString(id) || bareProquintRE.MatchString(id) || legacyNumericRE.MatchString(id) || legacyLetterRE.MatchString(id) || filenameStemRE.MatchString(id)
 }
 
 func validSubtaskID(id string) bool {
@@ -340,7 +368,7 @@ func validateTopLevelItem(todoID, detailFile, file string, lineNo int, seen map[
 			TodoID:   todoID,
 			File:     file,
 			Line:     lineNo,
-			Message:  fmt.Sprintf("TODO ID %q is not a supported proquint or legacy ID.", todoID),
+			Message:  fmt.Sprintf("TODO ID %q is not a supported top-level TODO ID style.", todoID),
 		})
 	}
 	if firstLine, ok := seen[todoID]; ok {
@@ -364,6 +392,13 @@ func validateTopLevelItem(todoID, detailFile, file string, lineNo int, seen map[
 		})
 	}
 	return findings
+}
+
+func parseCheckboxStatus(raw string) model.Status {
+	if strings.EqualFold(raw, "x") {
+		return model.StatusCompleted
+	}
+	return model.StatusOpen
 }
 
 func cleanTableTitle(title string) string {

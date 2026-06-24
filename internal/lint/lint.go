@@ -11,20 +11,39 @@ func Run(snapshot model.Snapshot) []model.LintFinding {
 	findings := append([]model.LintFinding{}, snapshot.Findings...)
 
 	for _, item := range snapshot.Items {
+		declaredStatus := snapshot.IndexStatusByID[item.TodoID]
 		subtasks := snapshot.SubtasksByParent[item.TodoID]
-		if item.Status == model.StatusCompleted {
-			for _, subtask := range subtasks {
-				if subtask.Status == model.StatusOpen {
-					findings = append(findings, model.LintFinding{
-						Severity: "warning",
-						Code:     "checked_parent_open_subtask",
-						TodoID:   item.TodoID,
-						File:     subtask.SourceFile,
-						Line:     subtask.Line,
-						Message:  fmt.Sprintf("Parent %s is checked while subtask %s remains open.", item.TodoID, subtask.SubtaskID),
-					})
-				}
+		if len(subtasks) == 0 {
+			continue
+		}
+
+		openCount := 0
+		for _, subtask := range subtasks {
+			if subtask.Status == model.StatusOpen {
+				openCount++
 			}
+		}
+		allSubtasksCompleted := openCount == 0
+
+		if declaredStatus == model.StatusOpen && (item.Status == model.StatusCompleted || allSubtasksCompleted) {
+			findings = append(findings, model.LintFinding{
+				Severity: "warning",
+				Code:     "index_open_detail_complete",
+				TodoID:   item.TodoID,
+				File:     item.SourceFile,
+				Line:     item.Line,
+				Message:  fmt.Sprintf("Index item %s remains open while its detail file appears complete.", item.TodoID),
+			})
+		}
+		if declaredStatus == model.StatusCompleted && openCount > 0 {
+			findings = append(findings, model.LintFinding{
+				Severity: "warning",
+				Code:     "index_done_detail_open",
+				TodoID:   item.TodoID,
+				File:     item.SourceFile,
+				Line:     item.Line,
+				Message:  fmt.Sprintf("Index item %s is checked while %d subtask(s) remain open in the detail file.", item.TodoID, openCount),
+			})
 		}
 	}
 

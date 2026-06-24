@@ -59,7 +59,7 @@ func detectIndexLayouts(snapshot model.Snapshot) []string {
 	content := snapshot.FileContents[snapshot.IndexFile]
 	layouts := map[string]bool{}
 	for _, line := range strings.Split(content, "\n") {
-		if indexLineRE.MatchString(line) {
+		if indexLineRE.MatchString(line) || indexFileStemRE.MatchString(line) {
 			layouts["checklist_lines"] = true
 		}
 		if indexTableRowRE.MatchString(line) {
@@ -78,10 +78,14 @@ func detectTopLevelStyles(items []model.TodoItem) []string {
 		switch {
 		case proquintRE.MatchString(item.TodoID):
 			styles["proquint"] = true
+		case bareProquintRE.MatchString(item.TodoID):
+			styles["bare_proquint"] = true
 		case legacyNumericRE.MatchString(item.TodoID):
 			styles["numeric_legacy"] = true
 		case legacyLetterRE.MatchString(item.TodoID):
 			styles["letter_prefixed_legacy"] = true
+		case filenameStemRE.MatchString(item.TodoID):
+			styles["filename_stem"] = true
 		default:
 			styles["other"] = true
 		}

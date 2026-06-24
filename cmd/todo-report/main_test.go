@@ -263,7 +263,7 @@ func TestRunLintEndToEnd(t *testing.T) {
 		}
 	})
 
-	for _, want := range []string{"## Lint Report", "checked_parent_open_subtask", "orphan_detail_file"} {
+	for _, want := range []string{"## Lint Report", "index_done_detail_open", "orphan_detail_file"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("expected %q in %q", want, out)
 		}

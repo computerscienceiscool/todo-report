@@ -10,19 +10,42 @@ func TestParseIndexSupportsProquintAndLegacyIDs(t *testing.T) {
 	content := `# TODO Index
 
 - [ ] TODO-binap - Lock outline (` + "`TODO/TODO-binap-readme-outline-lock.md`" + `)
+barez - Bare proquint
 001 - Add route support
 S122 - Spelling check
 `
 
 	items, findings := ParseIndex("repo", "main", "abc123", "TODO/TODO.md", content)
-	if len(items) != 3 {
-		t.Fatalf("expected 3 items, got %d", len(items))
+	if len(items) != 4 {
+		t.Fatalf("expected 4 items, got %d", len(items))
 	}
 	if len(findings) != 0 {
 		t.Fatalf("expected no findings, got %#v", findings)
 	}
-	if items[0].TodoID != "TODO-binap" || items[1].TodoID != "001" || items[2].TodoID != "S122" {
+	if items[0].TodoID != "TODO-binap" || items[1].TodoID != "barez" || items[2].TodoID != "001" || items[3].TodoID != "S122" {
 		t.Fatalf("unexpected IDs: %#v", items)
+	}
+}
+
+func TestParseIndexSupportsFilenameStemIDs(t *testing.T) {
+	content := `# Storm TODO
+
+- [ ] 026-planning-group-workspace-mvp.md Planning group workspace tool MVP (shared docs, decisions, collaboration)
+- [x] 014-change-review-gate.md Change review gate (diff/approve/apply/commit) for file edits
+`
+
+	items, findings := ParseIndex("repo", "main", "abc123", "TODO/TODO.md", content)
+	if len(findings) != 0 {
+		t.Fatalf("expected no findings, got %#v", findings)
+	}
+	if len(items) != 2 {
+		t.Fatalf("expected 2 items, got %d", len(items))
+	}
+	if items[0].TodoID != "026-planning-group-workspace-mvp.md" || items[0].DetailFile != "TODO/026-planning-group-workspace-mvp.md" {
+		t.Fatalf("unexpected first item %#v", items[0])
+	}
+	if items[1].TodoID != "014-change-review-gate.md" || items[1].Status != model.StatusCompleted {
+		t.Fatalf("unexpected second item %#v", items[1])
 	}
 }
 

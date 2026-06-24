@@ -55,6 +55,7 @@ type Snapshot struct {
 	TodoRoot         string               `json:"todo_root"`
 	Items            []TodoItem           `json:"items"`
 	ItemByID         map[string]TodoItem  `json:"-"`
+	IndexStatusByID  map[string]Status    `json:"-"`
 	SubtasksByParent map[string][]Subtask `json:"subtasks_by_parent"`
 	SubtaskByTarget  map[string]Subtask   `json:"-"`
 	DetailFiles      map[string]string    `json:"detail_files"`

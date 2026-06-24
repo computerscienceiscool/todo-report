@@ -82,8 +82,10 @@ directory.
 Top-level TODO IDs:
 
 - proquint: `TODO-binap`
+- bare proquint: `jirin`
 - numeric legacy: `001`, `1223`
 - single-letter legacy prefix: `S122`
+- filename stem: `026-planning-group-workspace-mvp.md`
 
 Detail-file subtask IDs keep their native form, including nested forms:
 
@@ -228,7 +230,8 @@ Current command behavior:
 - reports invalid checkbox syntax
 - reports missing detail files
 - reports referenced subtasks not found within the same parent TODO detail file
-- reports checked parents with open subtasks
+- reports `index_open_detail_complete` when the index stays open but the linked detail file appears complete
+- reports `index_done_detail_open` when the index is checked but linked subtasks remain open
 - reports orphaned `TODO/TODO-*.md` detail files as warnings
 
 ## Examples

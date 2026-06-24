@@ -33,7 +33,8 @@ todo-report lint --repo ~/lab/cswg/coordination --branch jj --format markdown
 ```
 
 This is useful when the team wants a GitHub-friendly checklist-style report of
-broken detail links, malformed subtask lines, or orphaned detail files.
+broken detail links, malformed subtask lines, orphaned detail files, or
+index/detail completion mismatches.
 
 ### Health JSON
 
@@ -257,3 +258,6 @@ release notes, or later trend analysis.
   in the current parent detail file.
 - Checkbox-style detail subtasks accept `[ ]`, `[x]`, and `[~]`, with `[~]`
   reported as open.
+- Top-level TODO IDs currently support prefixed proquints, bare proquints,
+  numeric legacy IDs, single-letter legacy IDs, and filename-stem styles such
+  as `026-planning-group-workspace-mvp.md`.
