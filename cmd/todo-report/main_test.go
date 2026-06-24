@@ -70,7 +70,7 @@ func TestRunErrors(t *testing.T) {
 		{
 			name: "fleet health missing repo list",
 			args: []string{"fleet", "health", "--branch", "main"},
-			want: "fleet health requires --repo-list",
+			want: "fleet health requires --repo-list or at least one --repo",
 		},
 	}
 
@@ -418,6 +418,49 @@ func TestRunFleetHealthEndToEnd(t *testing.T) {
 	})
 
 	for _, want := range []string{"Repo list:", "Repos: 3", "Successful repos: 2", "Repo errors: 1", "mode=all-indexes", "missing-repo"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunFleetHealthWithInlineRepos(t *testing.T) {
+	repoA := sampleCLIRepo(t)
+	repoB := sampleMultiIndexCompareRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"fleet", "health", "--repo", repoA.Dir, "--repo", repoB.Dir, "--branch", "main", "--all-indexes", "--format", "text"}); err != nil {
+			t.Fatalf("run fleet health inline repos: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Repo list: (inline repos)", "Repos: 2", "Successful repos: 2", "mode=all-indexes"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunFleetHealthWithRepoListAndInlineReposDedupes(t *testing.T) {
+	repoA := sampleCLIRepo(t)
+	repoB := sampleMultiIndexCompareRepo(t)
+	listDir := t.TempDir()
+	repoList := filepath.Join(listDir, "repos.txt")
+	content := strings.Join([]string{
+		repoA.Dir,
+		repoB.Dir,
+	}, "\n")
+	if err := os.WriteFile(repoList, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"fleet", "health", "--repo-list", repoList, "--repo", repoA.Dir, "--branch", "main", "--all-indexes", "--format", "text"}); err != nil {
+			t.Fatalf("run fleet health mixed repos: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Repo list: " + repoList + " + inline repos", "Repos: 2", "Successful repos: 2"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("expected %q in %q", want, out)
 		}

@@ -481,6 +481,7 @@ todo-report indexes --repo ~/lab/wire-lab --branch main --include-index SIM-beta
 todo-report health --repo ~/lab/wire-lab --branch main --all-indexes --format text
 todo-report health --repo ~/lab/cswg/coordination --branch jj --all-indexes --compare main --format text
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --format text
+todo-report fleet health --repo ~/lab/cswg/coordination --repo ~/lab/wire-lab --branch main --all-indexes --format text
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/ --format text
 todo-report drift --repo ~/lab/cswg/coordination --branch-a main --branch-b jj --format text; echo $?
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet-health.json --format text

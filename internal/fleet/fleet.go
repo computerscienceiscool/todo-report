@@ -44,6 +44,22 @@ func LoadRepoList(listPath string) ([]string, error) {
 	return repos, nil
 }
 
+func ResolveRepoPaths(baseDir string, raws []string) ([]string, error) {
+	repos := make([]string, 0, len(raws))
+	for _, raw := range raws {
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		resolved, err := resolveRepoPath(baseDir, raw)
+		if err != nil {
+			return nil, err
+		}
+		repos = append(repos, resolved)
+	}
+	return repos, nil
+}
+
 func BuildHealthReport(branch, compareBranch, repoListFile string, entries []model.FleetHealthEntry) model.FleetHealthReport {
 	report := model.FleetHealthReport{
 		Branch:        branch,
@@ -100,6 +116,22 @@ func FilterRepoPaths(repos, include, exclude []string) []string {
 		filtered = append(filtered, repo)
 	}
 	return filtered
+}
+
+func UniqueRepoPaths(repos []string) []string {
+	if len(repos) < 2 {
+		return repos
+	}
+	seen := make(map[string]struct{}, len(repos))
+	out := make([]string, 0, len(repos))
+	for _, repo := range repos {
+		if _, ok := seen[repo]; ok {
+			continue
+		}
+		seen[repo] = struct{}{}
+		out = append(out, repo)
+	}
+	return out
 }
 
 func resolveRepoPath(baseDir, raw string) (string, error) {

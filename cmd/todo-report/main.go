@@ -357,10 +357,12 @@ func runFleet(args []string) (int, error) {
 func runFleetHealth(args []string) (int, error) {
 	fs := flag.NewFlagSet("fleet health", flag.ContinueOnError)
 	repoList := fs.String("repo-list", "", "path to a newline-delimited repo list")
+	repoPaths := multiStringFlag{}
 	includeRepo := multiStringFlag{}
 	excludeRepo := multiStringFlag{}
 	includeIndex := multiStringFlag{}
 	excludeIndex := multiStringFlag{}
+	fs.Var(&repoPaths, "repo", "repo path to include in the fleet run; may be repeated")
 	fs.Var(&includeRepo, "include-repo", "substring filter for repo paths or names; may be repeated")
 	fs.Var(&excludeRepo, "exclude-repo", "substring filter for repo paths or names; may be repeated")
 	branch := fs.String("branch", "", "branch to inspect")
@@ -379,17 +381,18 @@ func runFleetHealth(args []string) (int, error) {
 	if err != nil {
 		return 2, err
 	}
-	if *repoList == "" {
-		return 2, errors.New("fleet health requires --repo-list")
+	if *repoList == "" && len(repoPaths) == 0 {
+		return 2, errors.New("fleet health requires --repo-list or at least one --repo")
 	}
 	if *branch == "" {
 		return 2, errors.New("fleet health requires --branch")
 	}
 
-	repos, err := fleetcalc.LoadRepoList(*repoList)
+	repos, repoSource, err := collectFleetRepos(*repoList, repoPaths)
 	if err != nil {
 		return 2, err
 	}
+	repos = fleetcalc.UniqueRepoPaths(repos)
 	repos = fleetcalc.FilterRepoPaths(repos, includeRepo, excludeRepo)
 	entries := make([]model.FleetHealthEntry, 0, len(repos))
 	for _, repoPath := range repos {
@@ -462,7 +465,7 @@ func runFleetHealth(args []string) (int, error) {
 		entries = append(entries, entry)
 	}
 
-	fleetReport := fleetcalc.BuildHealthReport(*branch, *compare, *repoList, entries)
+	fleetReport := fleetcalc.BuildHealthReport(*branch, *compare, repoSource, entries)
 	if *writeJSON != "" {
 		if err := writeJSONFile(*writeJSON, fleetReport); err != nil {
 			return 2, err
@@ -474,6 +477,37 @@ func runFleetHealth(args []string) (int, error) {
 	}
 	fmt.Print(out)
 	return statusExitCode(fleetReport.Status), nil
+}
+
+func collectFleetRepos(repoList string, repoPaths []string) ([]string, string, error) {
+	var repos []string
+	var source string
+	if repoList != "" {
+		loaded, err := fleetcalc.LoadRepoList(repoList)
+		if err != nil {
+			return nil, "", err
+		}
+		repos = append(repos, loaded...)
+		source = repoList
+	}
+	if len(repoPaths) > 0 {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return nil, "", err
+		}
+		resolved, err := fleetcalc.ResolveRepoPaths(cwd, repoPaths)
+		if err != nil {
+			return nil, "", err
+		}
+		repos = append(repos, resolved...)
+		switch {
+		case source == "":
+			source = "(inline repos)"
+		default:
+			source = source + " + inline repos"
+		}
+	}
+	return repos, source, nil
 }
 
 func usageError() error {

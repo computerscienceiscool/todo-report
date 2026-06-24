@@ -153,6 +153,20 @@ todo-report fleet health \
 This is useful when the team wants one report across a portfolio of repos
 instead of running the tool manually per repo.
 
+Ad hoc fleet summary with inline repos:
+
+```bash
+todo-report fleet health \
+  --repo ~/lab/cswg/coordination \
+  --repo ~/lab/wire-lab \
+  --branch main \
+  --all-indexes \
+  --format text
+```
+
+This is useful when a team wants a quick cross-repo report without creating or
+editing a repo list file.
+
 Fleet compare:
 
 ```bash
@@ -233,7 +247,7 @@ release notes, or later trend analysis.
   the selected branch and adds repo-wide drift and branch-only index lists for
   the comparison branch.
 - `fleet health` currently supports repo lists through `--repo-list`; it does
-  not yet support inline repeated `--repo` flags.
+  also supports repeated inline `--repo` flags, and the two inputs can be mixed.
 - Repo and index filters are substring-based and case-insensitive.
 - If filters remove every discovered index in an `--all-indexes` run, the
   report stays valid and returns zero discovered indexes.

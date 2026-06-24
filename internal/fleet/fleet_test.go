@@ -61,3 +61,18 @@ func TestFilterRepoPaths(t *testing.T) {
 		t.Fatalf("unexpected filtered order %#v", filtered)
 	}
 }
+
+func TestResolveRepoPathsAndUniqueRepoPaths(t *testing.T) {
+	baseDir := t.TempDir()
+	repos, err := ResolveRepoPaths(baseDir, []string{"./alpha", "./beta", "./alpha"})
+	if err != nil {
+		t.Fatalf("resolve repo paths: %v", err)
+	}
+	unique := UniqueRepoPaths(repos)
+	if len(unique) != 2 {
+		t.Fatalf("unexpected unique repos %#v", unique)
+	}
+	if unique[0] == unique[1] {
+		t.Fatalf("expected distinct repo paths %#v", unique)
+	}
+}

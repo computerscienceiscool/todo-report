@@ -25,6 +25,7 @@ For monorepos, `indexes` discovers every authoritative `TODO/TODO.md` in the
 selected branch, and `health --all-indexes` rolls them into a repo-wide summary.
 For many repos, `fleet health --repo-list repos.txt` rolls those per-repo
 summaries into a single portfolio view.
+For quick ad hoc runs, `fleet health` also accepts repeated `--repo` flags.
 Use `--write-json report.json` on `health` or `fleet health` to save a stable
 JSON snapshot that teams can commit, archive, and diff later.
 Use repo and index filters to narrow large runs without editing the underlying
@@ -154,15 +155,16 @@ repo-wide drift and branch-only index lists are added for the comparison.
 
 ```bash
 todo-report fleet health --repo-list repos.txt --branch main
+todo-report fleet health --repo /path/to/repo-a --repo /path/to/repo-b --branch main
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --compare jj
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet.json
 ```
 
-Reads a newline-delimited repo list and produces a fleet-wide health report.
-Each repo is processed independently, so one broken repo path or one bad branch
-does not abort the whole fleet run.
+Reads a newline-delimited repo list and/or repeated inline repo paths and
+produces a fleet-wide health report. Each repo is processed independently, so
+one broken repo path or one bad branch does not abort the whole fleet run.
 
 ## Filtering
 
@@ -253,6 +255,12 @@ Fleet summary across many repos:
 
 ```bash
 todo-report fleet health --repo-list repos.txt --branch main --all-indexes
+```
+
+Ad hoc fleet summary without a repo list file:
+
+```bash
+todo-report fleet health --repo ~/lab/cswg/coordination --repo ~/lab/wire-lab --branch main --all-indexes
 ```
 
 Fleet summary narrowed to active repos and index paths:
