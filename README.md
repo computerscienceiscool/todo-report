@@ -49,6 +49,37 @@ repo list or TODO files.
 The test suite now includes fixture repos that mirror the mixed TODO styles
 seen in real team repos so compatibility regressions are easier to catch.
 
+## Report types
+
+Single-repo reports:
+
+- `age`
+- `drift`
+- `lint`
+- `health`
+- `detect`
+
+Monorepo reports:
+
+- `indexes`
+- `health --all-indexes`
+
+Fleet reports:
+
+- `fleet health`
+
+Output modes:
+
+- `text`
+- `markdown`
+- `json`
+- `tsv`
+
+Snapshot/export support:
+
+- `health --write-json`
+- `fleet health --write-json`
+
 ## PromiseGrid relationship
 
 `todo-report` is PromiseGrid-adjacent, not PromiseGrid-native.

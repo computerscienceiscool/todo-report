@@ -432,6 +432,43 @@
       </div>
     </section>
 
+    <section aria-labelledby="reports-title">
+      <div class="section-head">
+        <div>
+          <h2 id="reports-title">Report types</h2>
+        </div>
+        <p>
+          The tool covers single repos, monorepos, and fleets without changing command families.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="card">
+          <span class="tag">Single repo</span>
+          <h3><code>age</code> <code>drift</code> <code>lint</code> <code>health</code> <code>detect</code></h3>
+          <p>Use these when one repo has one active queue or one explicit nested index.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Monorepo</span>
+          <h3><code>indexes</code> + <code>health --all-indexes</code></h3>
+          <p>Discover multiple authoritative TODO roots and summarize them together.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Fleet</span>
+          <h3><code>fleet health</code></h3>
+          <p>Roll repo lists or repeated <code>--repo</code> flags into one cross-repo summary.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Export</span>
+          <h3><code>text</code> <code>markdown</code> <code>json</code> <code>tsv</code></h3>
+          <p>Render for humans, scripts, or saved JSON snapshots through <code>--write-json</code>.</p>
+        </article>
+      </div>
+    </section>
+
     <section aria-labelledby="modes-title">
       <div class="section-head">
         <div>
