@@ -21,6 +21,9 @@ The tool has three main features:
 `health` is the summary command on top of those three. It combines age, lint,
 and optional branch drift into one report.
 
+For monorepos, `indexes` discovers every authoritative `TODO/TODO.md` in the
+selected branch, and `health --all-indexes` rolls them into a repo-wide summary.
+
 ## PromiseGrid relationship
 
 `todo-report` is PromiseGrid-adjacent, not PromiseGrid-native.
@@ -107,6 +110,14 @@ todo-report drift --repo /path/to/repo --branch-a main --branch-b jj
 
 Compares TODO state across two branches.
 
+### `indexes`
+
+```bash
+todo-report indexes --repo /path/to/repo --branch main
+```
+
+Discovers root and nested `TODO/TODO.md` indexes on the selected branch.
+
 ### `lint`
 
 ```bash
@@ -120,9 +131,12 @@ Validates the TODO structure rooted at the selected index file.
 ```bash
 todo-report health --repo /path/to/repo --branch main
 todo-report health --repo /path/to/repo --branch main --compare jj
+todo-report health --repo /path/to/repo --branch main --all-indexes
 ```
 
 Summarizes repo TODO health and can optionally include branch drift counts.
+With `--all-indexes`, it discovers every authoritative TODO index on the
+selected branch and reports a combined monorepo summary.
 
 ## Output formats
 
@@ -165,6 +179,12 @@ Human-readable summary:
 todo-report health --repo ~/lab/cswg/coordination --branch jj
 ```
 
+Multi-index monorepo summary:
+
+```bash
+todo-report health --repo ~/lab/wire-lab --branch main --all-indexes
+```
+
 Markdown report for GitHub:
 
 ```bash
@@ -181,6 +201,12 @@ TSV for shell tools:
 
 ```bash
 todo-report age --repo ~/lab/cswg/coordination --branch jj --format tsv
+```
+
+Index discovery:
+
+```bash
+todo-report indexes --repo ~/lab/wire-lab --branch main --format text
 ```
 
 Nested-index repo:

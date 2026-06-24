@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"todo-report/internal/health"
 	"todo-report/internal/model"
 )
 
@@ -141,20 +142,81 @@ func TestRenderHealthFormats(t *testing.T) {
 		{Severity: "warning", Code: "orphan_detail_file", File: "TODO/TODO-orphan.md", Line: 1},
 	}
 	driftResult := &model.DriftResult{BranchA: "main", BranchB: "jj", TotalDifferenceRows: 4}
+	report := health.Build(snapshot, ages, findings, driftResult, "main")
 
 	tests := []struct {
 		format string
 		want   []string
 	}{
-		{format: "text", want: []string{"Repo: coordination", "Branch drift items: 4"}},
-		{format: "markdown", want: []string{"## Health Report", "## Drift Report", "## Lint Report"}},
-		{format: "json", want: []string{`"open_todos": 1`, `"lint_errors": 1`, `"total_difference_rows": 4`}},
-		{format: "tsv", want: []string{"key\tvalue", "repo\tcoordination", "drift_items\t4"}},
+		{format: "text", want: []string{"Repo: coordination", "Status: ERROR", "Top findings:", "Branch drift items: 4"}},
+		{format: "markdown", want: []string{"## Health Report", "### Finding Summary", "## Drift Report", "## Lint Report"}},
+		{format: "json", want: []string{`"open_todos": 1`, `"lint_errors": 1`, `"total_difference_rows": 4`, `"status": "error"`}},
+		{format: "tsv", want: []string{"section\tkey\tvalue", "summary\trepo\tcoordination", "summary\tdrift_items\t4"}},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.format, func(t *testing.T) {
-			out, err := RenderHealth(snapshot, ages, findings, driftResult, tc.format)
+			out, err := RenderHealth(report, tc.format)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			for _, want := range tc.want {
+				if !strings.Contains(out, want) {
+					t.Fatalf("expected %q in output %q", want, out)
+				}
+			}
+		})
+	}
+}
+
+func TestRenderMultiHealthFormats(t *testing.T) {
+	reports := []model.HealthReport{
+		{Repo: "coordination", Branch: "jj", IndexFile: "TODO/TODO.md", Status: "warning", OpenTODOs: 2, CompletedTODOs: 1, LintWarnings: 1},
+		{Repo: "coordination", Branch: "jj", IndexFile: "protocols/wire-lab.d/TODO/TODO.md", Status: "error", OpenTODOs: 5, CompletedTODOs: 2, LintErrors: 3},
+	}
+	multi := health.BuildMulti("coordination", "jj", reports)
+
+	tests := []struct {
+		format string
+		want   []string
+	}{
+		{format: "text", want: []string{"Discovered indexes: 2", "TODO/TODO.md", "protocols/wire-lab.d/TODO/TODO.md"}},
+		{format: "markdown", want: []string{"## Multi-Index Health Report", "### Index Summaries", "`TODO/TODO.md`"}},
+		{format: "json", want: []string{`"index_files": [`, `"lint_errors": 3`}},
+		{format: "tsv", want: []string{"scope\tindex_file\tstatus", "summary\t(all)\terror", "index\tTODO/TODO.md\twarning"}},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.format, func(t *testing.T) {
+			out, err := RenderMultiHealth(multi, tc.format)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			for _, want := range tc.want {
+				if !strings.Contains(out, want) {
+					t.Fatalf("expected %q in output %q", want, out)
+				}
+			}
+		})
+	}
+}
+
+func TestRenderIndexesFormats(t *testing.T) {
+	indexes := []string{"TODO/TODO.md", "protocols/wire-lab.d/TODO/TODO.md"}
+
+	tests := []struct {
+		format string
+		want   []string
+	}{
+		{format: "text", want: []string{"TODO/TODO.md", "protocols/wire-lab.d/TODO/TODO.md"}},
+		{format: "markdown", want: []string{"## TODO Indexes", "`TODO/TODO.md`"}},
+		{format: "json", want: []string{`"indexes": [`}},
+		{format: "tsv", want: []string{"index_file\ttodo_root", "TODO/TODO.md\tTODO"}},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.format, func(t *testing.T) {
+			out, err := RenderIndexes(indexes, tc.format)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}

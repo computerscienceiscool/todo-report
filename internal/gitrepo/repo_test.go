@@ -66,6 +66,14 @@ func TestRepoOperations(t *testing.T) {
 		t.Fatalf("unexpected files: %#v", files)
 	}
 
+	allFiles, err := repo.ListAllFiles("main")
+	if err != nil {
+		t.Fatalf("list all files: %v", err)
+	}
+	if len(allFiles) != 2 || allFiles[0] != "TODO/TODO-binap.md" || allFiles[1] != "TODO/TODO.md" {
+		t.Fatalf("unexpected all files: %#v", allFiles)
+	}
+
 	history, err := repo.ReverseLog("main", "TODO/TODO.md")
 	if err != nil {
 		t.Fatalf("reverse log: %v", err)

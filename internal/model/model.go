@@ -95,3 +95,43 @@ type DriftResult struct {
 	OtherDifferences    []DriftChange `json:"other_differences"`
 	TotalDifferenceRows int           `json:"total_difference_rows"`
 }
+
+type FindingCount struct {
+	Severity string `json:"severity"`
+	Code     string `json:"code"`
+	Count    int    `json:"count"`
+}
+
+type HealthReport struct {
+	Repo              string         `json:"repo"`
+	Branch            string         `json:"branch"`
+	CompareBranch     string         `json:"compare_branch,omitempty"`
+	IndexFile         string         `json:"index_file"`
+	TodoRoot          string         `json:"todo_root"`
+	Status            string         `json:"status"`
+	OpenTODOs         int            `json:"open_todos"`
+	CompletedTODOs    int            `json:"completed_todos"`
+	OldestOpen        *AgeRecord     `json:"oldest_open,omitempty"`
+	OldestOpenItems   []AgeRecord    `json:"oldest_open_items,omitempty"`
+	LintErrors        int            `json:"lint_errors"`
+	LintWarnings      int            `json:"lint_warnings"`
+	FindingSummary    []FindingCount `json:"finding_summary,omitempty"`
+	Drift             *DriftResult   `json:"drift,omitempty"`
+	Findings          []LintFinding  `json:"findings"`
+	Age               []AgeRecord    `json:"age"`
+	OrphanDetailFiles []string       `json:"orphan_detail_files"`
+}
+
+type MultiHealthReport struct {
+	Repo               string         `json:"repo"`
+	Branch             string         `json:"branch"`
+	Status             string         `json:"status"`
+	IndexFiles         []string       `json:"index_files"`
+	Reports            []HealthReport `json:"reports"`
+	OpenTODOs          int            `json:"open_todos"`
+	CompletedTODOs     int            `json:"completed_todos"`
+	LintErrors         int            `json:"lint_errors"`
+	LintWarnings       int            `json:"lint_warnings"`
+	IndexesWithErrors  int            `json:"indexes_with_errors"`
+	IndexesWithWarning int            `json:"indexes_with_warnings"`
+}

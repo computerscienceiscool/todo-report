@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"todo-report/internal/age"
 	"todo-report/internal/drift"
 	"todo-report/internal/gitrepo"
+	healthcalc "todo-report/internal/health"
 	"todo-report/internal/lint"
 	"todo-report/internal/model"
 	"todo-report/internal/report"
@@ -34,6 +36,8 @@ func run(args []string) error {
 		return runAge(args[1:])
 	case "drift":
 		return runDrift(args[1:])
+	case "indexes":
+		return runIndexes(args[1:])
 	case "lint":
 		return runLint(args[1:])
 	case "health":
@@ -163,11 +167,47 @@ func runLint(args []string) error {
 	return nil
 }
 
+func runIndexes(args []string) error {
+	fs := flag.NewFlagSet("indexes", flag.ContinueOnError)
+	repoPath := fs.String("repo", ".", "path to git repo")
+	branch := fs.String("branch", "", "branch to inspect")
+	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
+	jsonFlag := fs.Bool("json", false, "alias for --format json")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	formatValue, err := normalizeFormat(*format, *jsonFlag)
+	if err != nil {
+		return err
+	}
+	if *branch == "" {
+		return errors.New("indexes requires --branch")
+	}
+
+	repo, err := gitrepo.Open(*repoPath)
+	if err != nil {
+		return err
+	}
+
+	indexes, err := todo.DiscoverIndexes(repo, *branch)
+	if err != nil {
+		return err
+	}
+
+	out, err := report.RenderIndexes(indexes, formatValue)
+	if err != nil {
+		return err
+	}
+	fmt.Print(out)
+	return nil
+}
+
 func runHealth(args []string) error {
 	fs := flag.NewFlagSet("health", flag.ContinueOnError)
 	repoPath := fs.String("repo", ".", "path to git repo")
 	branch := fs.String("branch", "", "branch to inspect")
 	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
+	allIndexes := fs.Bool("all-indexes", false, "discover all TODO/TODO.md indexes and summarize them together")
 	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
 	jsonFlag := fs.Bool("json", false, "alias for --format json")
 	compare := fs.String("compare", "", "optional branch to compare against")
@@ -181,34 +221,43 @@ func runHealth(args []string) error {
 	if *branch == "" {
 		return errors.New("health requires --branch")
 	}
+	if *allIndexes && *compare != "" {
+		return errors.New("health does not support --compare with --all-indexes")
+	}
 
 	repo, err := gitrepo.Open(*repoPath)
 	if err != nil {
 		return err
 	}
 
-	snapshot, err := todo.LoadSnapshot(repo, *branch, *indexPath)
-	if err != nil {
-		return err
-	}
-
-	ages, err := age.Compute(repo, snapshot)
-	if err != nil {
-		return err
-	}
-	findings := lint.Run(snapshot)
-
-	var driftResult *model.DriftResult
-	if *compare != "" {
-		other, err := todo.LoadSnapshot(repo, *compare, *indexPath)
+	if *allIndexes {
+		indexes, err := todo.DiscoverIndexes(repo, *branch)
 		if err != nil {
 			return err
 		}
-		result := drift.Compare(snapshot, other)
-		driftResult = &result
+		reports := make([]model.HealthReport, 0, len(indexes))
+		for _, discovered := range indexes {
+			reportData, err := loadHealthReport(repo, *branch, discovered, "")
+			if err != nil {
+				return err
+			}
+			reports = append(reports, reportData)
+		}
+		sort.Slice(reports, func(i, j int) bool { return reports[i].IndexFile < reports[j].IndexFile })
+		out, err := report.RenderMultiHealth(healthcalc.BuildMulti(repo.Name, *branch, reports), formatValue)
+		if err != nil {
+			return err
+		}
+		fmt.Print(out)
+		return nil
 	}
 
-	out, err := report.RenderHealth(snapshot, ages, findings, driftResult, formatValue)
+	reportData, err := loadHealthReport(repo, *branch, *indexPath, *compare)
+	if err != nil {
+		return err
+	}
+
+	out, err := report.RenderHealth(reportData, formatValue)
 	if err != nil {
 		return err
 	}
@@ -218,7 +267,7 @@ func runHealth(args []string) error {
 
 func usageError() error {
 	name := filepath.Base(os.Args[0])
-	return fmt.Errorf("usage: %s <age|drift|lint|health> [flags]", name)
+	return fmt.Errorf("usage: %s <age|drift|indexes|lint|health> [flags]", name)
 }
 
 func normalizeFormat(format string, jsonFlag bool) (string, error) {
@@ -232,4 +281,29 @@ func normalizeFormat(format string, jsonFlag bool) (string, error) {
 	default:
 		return "", fmt.Errorf("unsupported format %q", format)
 	}
+}
+
+func loadHealthReport(repo *gitrepo.Repo, branch, indexPath, compare string) (model.HealthReport, error) {
+	snapshot, err := todo.LoadSnapshot(repo, branch, indexPath)
+	if err != nil {
+		return model.HealthReport{}, err
+	}
+
+	ages, err := age.Compute(repo, snapshot)
+	if err != nil {
+		return model.HealthReport{}, err
+	}
+	findings := lint.Run(snapshot)
+
+	var driftResult *model.DriftResult
+	if compare != "" {
+		other, err := todo.LoadSnapshot(repo, compare, indexPath)
+		if err != nil {
+			return model.HealthReport{}, err
+		}
+		result := drift.Compare(snapshot, other)
+		driftResult = &result
+	}
+
+	return healthcalc.Build(snapshot, ages, findings, driftResult, compare), nil
 }

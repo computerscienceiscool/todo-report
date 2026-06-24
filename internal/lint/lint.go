@@ -34,7 +34,7 @@ func Run(snapshot model.Snapshot) []model.LintFinding {
 			Code:     "orphan_detail_file",
 			File:     file,
 			Line:     1,
-			Message:  "Detail file exists under TODO/ but is not linked from TODO/TODO.md.",
+			Message:  fmt.Sprintf("Detail file exists under %s but is not linked from %s.", snapshot.TodoRoot, snapshot.IndexFile),
 		})
 	}
 

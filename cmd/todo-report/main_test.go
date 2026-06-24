@@ -46,6 +46,16 @@ func TestRunErrors(t *testing.T) {
 			args: []string{"health"},
 			want: "health requires --branch",
 		},
+		{
+			name: "indexes missing branch",
+			args: []string{"indexes"},
+			want: "indexes requires --branch",
+		},
+		{
+			name: "health all indexes compare unsupported",
+			args: []string{"health", "--branch", "main", "--all-indexes", "--compare", "jj"},
+			want: "health does not support --compare with --all-indexes",
+		},
 	}
 
 	for _, tc := range tests {
@@ -154,7 +164,39 @@ func TestRunHealthEndToEnd(t *testing.T) {
 		}
 	})
 
-	for _, want := range []string{`"repo":`, `"branch": "jj"`, `"open_todos": 2`, `"completed_todos": 1`, `"total_difference_rows": 3`} {
+	for _, want := range []string{`"repo":`, `"branch": "jj"`, `"open_todos": 2`, `"completed_todos": 1`, `"total_difference_rows": 3`, `"status": "warning"`} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunIndexesEndToEnd(t *testing.T) {
+	repo := sampleMultiIndexRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"indexes", "--repo", repo.Dir, "--branch", "main", "--format", "text"}); err != nil {
+			t.Fatalf("run indexes: %v", err)
+		}
+	})
+
+	for _, want := range []string{"TODO/TODO.md", "protocols/wire-lab.d/TODO/TODO.md"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
+	}
+}
+
+func TestRunHealthAllIndexesEndToEnd(t *testing.T) {
+	repo := sampleMultiIndexRepo(t)
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"health", "--repo", repo.Dir, "--branch", "main", "--all-indexes", "--format", "text"}); err != nil {
+			t.Fatalf("run health all indexes: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Discovered indexes: 2", "Index summaries:", "protocols/wire-lab.d/TODO/TODO.md"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("expected %q in %q", want, out)
 		}
@@ -201,6 +243,19 @@ func sampleNestedIndexRepo(t *testing.T) *testrepo.Repo {
 	repo.Write("protocols/wire-lab.d/TODO/TODO-orphan-local.md", "# TODO-orphan\n\n## Status\n\nPlanned.\n")
 	repo.Write("simulations/SIM-rakot-group-session/protocols/group-session.d/TODO/TODO-bisur-group-transport-envelope.md", "# TODO-bisur\n\n## Status\n\nImplemented.\n\n## Subtasks\n\n- [x] bisur.1 Done subtask\n")
 	repo.Commit("Seed nested index", "2026-01-01T00:00:00Z")
+
+	return repo
+}
+
+func sampleMultiIndexRepo(t *testing.T) *testrepo.Repo {
+	t.Helper()
+
+	repo := testrepo.New(t)
+	repo.Write("TODO/TODO.md", "# TODO Index\n\n- [ ] TODO-roota - Root task (`TODO/TODO-roota.md`)\n")
+	repo.Write("TODO/TODO-roota.md", "# TODO-roota\n\n- [ ] roota.1 Root subtask\n")
+	repo.Write("protocols/wire-lab.d/TODO/TODO.md", "# TODO queue\n\n| Handle | Mint date | Title | Prior alias |\n|---|---|---|---|\n| [TODO-hipak](./TODO-hipak-local.md) | 2026-05-25 | Local title | — |\n")
+	repo.Write("protocols/wire-lab.d/TODO/TODO-hipak-local.md", "# TODO-hipak\n\n## Status\n\nRunning.\n\n## Subtasks\n\n- [ ] hipak.1 First subtask\n")
+	repo.Commit("Seed multi index", "2026-01-01T00:00:00Z")
 
 	return repo
 }

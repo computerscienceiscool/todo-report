@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"path"
 	"sort"
 	"strings"
 
@@ -177,105 +178,189 @@ func RenderDrift(result model.DriftResult, format string) (string, error) {
 	}
 }
 
-func RenderHealth(snapshot model.Snapshot, ages []model.AgeRecord, findings []model.LintFinding, driftResult *model.DriftResult, format string) (string, error) {
-	type health struct {
-		Repo              string              `json:"repo"`
-		Branch            string              `json:"branch"`
-		OpenTODOs         int                 `json:"open_todos"`
-		CompletedTODOs    int                 `json:"completed_todos"`
-		OldestOpen        *model.AgeRecord    `json:"oldest_open,omitempty"`
-		LintErrors        int                 `json:"lint_errors"`
-		LintWarnings      int                 `json:"lint_warnings"`
-		Drift             *model.DriftResult  `json:"drift,omitempty"`
-		Findings          []model.LintFinding `json:"findings"`
-		Age               []model.AgeRecord   `json:"age"`
-		OrphanDetailFiles []string            `json:"orphan_detail_files"`
-	}
-
-	openCount := 0
-	completedCount := 0
-	for _, item := range snapshot.Items {
-		if item.Status == model.StatusCompleted {
-			completedCount++
-		} else {
-			openCount++
-		}
-	}
-	var oldest *model.AgeRecord
-	for i := range ages {
-		if ages[i].Todo.Status == model.StatusCompleted {
-			continue
-		}
-		oldest = &ages[i]
-		break
-	}
-	errorsCount, warningsCount := countFindings(findings)
-	data := health{
-		Repo:              snapshot.RepoName,
-		Branch:            snapshot.Branch,
-		OpenTODOs:         openCount,
-		CompletedTODOs:    completedCount,
-		OldestOpen:        oldest,
-		LintErrors:        errorsCount,
-		LintWarnings:      warningsCount,
-		Drift:             driftResult,
-		Findings:          findings,
-		Age:               ages,
-		OrphanDetailFiles: snapshot.OrphanDetail,
-	}
-
+func RenderHealth(report model.HealthReport, format string) (string, error) {
 	switch format {
 	case "json":
-		return marshal(data)
+		return marshal(report)
 	case "tsv":
 		var b strings.Builder
-		b.WriteString("key\tvalue\n")
-		fmt.Fprintf(&b, "repo\t%s\n", data.Repo)
-		fmt.Fprintf(&b, "branch\t%s\n", data.Branch)
-		fmt.Fprintf(&b, "open_todos\t%d\n", data.OpenTODOs)
-		fmt.Fprintf(&b, "completed_todos\t%d\n", data.CompletedTODOs)
-		if oldest != nil {
-			fmt.Fprintf(&b, "oldest_open\t%s\n", oldest.Todo.TodoID)
-			fmt.Fprintf(&b, "oldest_open_age_days\t%d\n", oldest.AgeDays)
+		b.WriteString("section\tkey\tvalue\n")
+		fmt.Fprintf(&b, "summary\trepo\t%s\n", report.Repo)
+		fmt.Fprintf(&b, "summary\tbranch\t%s\n", report.Branch)
+		fmt.Fprintf(&b, "summary\tindex_file\t%s\n", report.IndexFile)
+		fmt.Fprintf(&b, "summary\tstatus\t%s\n", report.Status)
+		fmt.Fprintf(&b, "summary\topen_todos\t%d\n", report.OpenTODOs)
+		fmt.Fprintf(&b, "summary\tcompleted_todos\t%d\n", report.CompletedTODOs)
+		if report.OldestOpen != nil {
+			fmt.Fprintf(&b, "summary\toldest_open\t%s\n", report.OldestOpen.Todo.TodoID)
+			fmt.Fprintf(&b, "summary\toldest_open_age_days\t%d\n", report.OldestOpen.AgeDays)
 		}
-		fmt.Fprintf(&b, "lint_errors\t%d\n", data.LintErrors)
-		fmt.Fprintf(&b, "lint_warnings\t%d\n", data.LintWarnings)
-		if driftResult != nil {
-			fmt.Fprintf(&b, "drift_items\t%d\n", driftResult.TotalDifferenceRows)
+		fmt.Fprintf(&b, "summary\tlint_errors\t%d\n", report.LintErrors)
+		fmt.Fprintf(&b, "summary\tlint_warnings\t%d\n", report.LintWarnings)
+		for _, summary := range report.FindingSummary {
+			fmt.Fprintf(&b, "finding_summary\t%s/%s\t%d\n", summary.Severity, summary.Code, summary.Count)
+		}
+		for _, record := range report.OldestOpenItems {
+			fmt.Fprintf(&b, "oldest_open\t%s\t%d\n", record.Todo.TodoID, record.AgeDays)
+		}
+		if report.Drift != nil {
+			fmt.Fprintf(&b, "summary\tdrift_items\t%d\n", report.Drift.TotalDifferenceRows)
 		}
 		return b.String(), nil
 	case "markdown":
 		var b strings.Builder
 		b.WriteString("## Health Report\n\n")
-		fmt.Fprintf(&b, "- Repo: `%s`\n", data.Repo)
-		fmt.Fprintf(&b, "- Branch: `%s`\n", data.Branch)
-		fmt.Fprintf(&b, "- Open TODOs: %d\n", data.OpenTODOs)
-		fmt.Fprintf(&b, "- Completed TODOs: %d\n", data.CompletedTODOs)
-		if oldest != nil {
-			fmt.Fprintf(&b, "- Oldest open TODO: `%s` (%d days)\n", oldest.Todo.TodoID, oldest.AgeDays)
+		fmt.Fprintf(&b, "- Repo: `%s`\n", report.Repo)
+		fmt.Fprintf(&b, "- Branch: `%s`\n", report.Branch)
+		fmt.Fprintf(&b, "- Index: `%s`\n", report.IndexFile)
+		fmt.Fprintf(&b, "- Status: `%s`\n", report.Status)
+		fmt.Fprintf(&b, "- Open TODOs: %d\n", report.OpenTODOs)
+		fmt.Fprintf(&b, "- Completed TODOs: %d\n", report.CompletedTODOs)
+		if report.OldestOpen != nil {
+			fmt.Fprintf(&b, "- Oldest open TODO: `%s` (%d days)\n", report.OldestOpen.Todo.TodoID, report.OldestOpen.AgeDays)
 		}
-		fmt.Fprintf(&b, "- Lint errors: %d\n", data.LintErrors)
-		fmt.Fprintf(&b, "- Lint warnings: %d\n\n", data.LintWarnings)
-		if driftResult != nil {
-			driftMD, _ := RenderDrift(*driftResult, "markdown")
+		fmt.Fprintf(&b, "- Lint errors: %d\n", report.LintErrors)
+		fmt.Fprintf(&b, "- Lint warnings: %d\n\n", report.LintWarnings)
+
+		if len(report.OldestOpenItems) > 0 {
+			b.WriteString("### Oldest Open TODOs\n\n")
+			for _, record := range report.OldestOpenItems {
+				fmt.Fprintf(&b, "- [ ] `%s` - %s (%d days)\n", record.Todo.TodoID, record.Todo.Title, record.AgeDays)
+			}
+			b.WriteString("\n")
+		}
+
+		if len(report.FindingSummary) > 0 {
+			b.WriteString("### Finding Summary\n\n")
+			for _, summary := range report.FindingSummary {
+				fmt.Fprintf(&b, "- [ ] `%s` `%s` - %d\n", summary.Severity, summary.Code, summary.Count)
+			}
+			b.WriteString("\n")
+		}
+
+		if report.Drift != nil {
+			b.WriteString("### Drift Summary\n\n")
+			fmt.Fprintf(&b, "- Difference rows: %d\n\n", report.Drift.TotalDifferenceRows)
+			driftMD, _ := RenderDrift(*report.Drift, "markdown")
 			b.WriteString(driftMD)
 		}
-		lintMD, _ := RenderLint(snapshot, findings, "markdown")
+		lintMD, _ := RenderLint(model.Snapshot{}, report.Findings, "markdown")
 		b.WriteString(lintMD)
 		return b.String(), nil
 	case "text":
 		var b strings.Builder
-		fmt.Fprintf(&b, "Repo: %s\n", data.Repo)
-		fmt.Fprintf(&b, "Branch: %s\n", data.Branch)
-		fmt.Fprintf(&b, "Open TODOs: %d\n", data.OpenTODOs)
-		fmt.Fprintf(&b, "Completed TODOs: %d\n", data.CompletedTODOs)
-		if oldest != nil {
-			fmt.Fprintf(&b, "Oldest open TODO: %s, %d days\n", oldest.Todo.TodoID, oldest.AgeDays)
+		fmt.Fprintf(&b, "Repo: %s\n", report.Repo)
+		fmt.Fprintf(&b, "Branch: %s\n", report.Branch)
+		fmt.Fprintf(&b, "Index: %s\n", report.IndexFile)
+		fmt.Fprintf(&b, "Status: %s\n", strings.ToUpper(report.Status))
+		fmt.Fprintf(&b, "Open TODOs: %d\n", report.OpenTODOs)
+		fmt.Fprintf(&b, "Completed TODOs: %d\n", report.CompletedTODOs)
+		if report.OldestOpen != nil {
+			fmt.Fprintf(&b, "Oldest open TODO: %s, %d days\n", report.OldestOpen.Todo.TodoID, report.OldestOpen.AgeDays)
 		}
-		fmt.Fprintf(&b, "Lint errors: %d\n", data.LintErrors)
-		fmt.Fprintf(&b, "Lint warnings: %d\n", data.LintWarnings)
-		if driftResult != nil {
-			fmt.Fprintf(&b, "Branch drift items: %d\n", driftResult.TotalDifferenceRows)
+		fmt.Fprintf(&b, "Lint errors: %d\n", report.LintErrors)
+		fmt.Fprintf(&b, "Lint warnings: %d\n", report.LintWarnings)
+		if report.Drift != nil {
+			fmt.Fprintf(&b, "Branch drift items: %d\n", report.Drift.TotalDifferenceRows)
+		}
+		if len(report.FindingSummary) > 0 {
+			b.WriteString("\nTop findings:\n")
+			for _, summary := range report.FindingSummary {
+				fmt.Fprintf(&b, "  %s %s (%d)\n", strings.ToUpper(summary.Severity), summary.Code, summary.Count)
+			}
+		}
+		if len(report.OldestOpenItems) > 0 {
+			b.WriteString("\nOldest open TODOs:\n")
+			for _, record := range report.OldestOpenItems {
+				fmt.Fprintf(&b, "  %s\t%d days\t%s\n", record.Todo.TodoID, record.AgeDays, record.Todo.Title)
+			}
+		}
+		return b.String(), nil
+	default:
+		return "", fmt.Errorf("unsupported format %q", format)
+	}
+}
+
+func RenderMultiHealth(report model.MultiHealthReport, format string) (string, error) {
+	switch format {
+	case "json":
+		return marshal(report)
+	case "tsv":
+		var b strings.Builder
+		b.WriteString("scope\tindex_file\tstatus\topen_todos\tcompleted_todos\tlint_errors\tlint_warnings\n")
+		fmt.Fprintf(&b, "summary\t(all)\t%s\t%d\t%d\t%d\t%d\n", report.Status, report.OpenTODOs, report.CompletedTODOs, report.LintErrors, report.LintWarnings)
+		for _, entry := range report.Reports {
+			fmt.Fprintf(&b, "index\t%s\t%s\t%d\t%d\t%d\t%d\n", entry.IndexFile, entry.Status, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
+		}
+		return b.String(), nil
+	case "markdown":
+		var b strings.Builder
+		b.WriteString("## Multi-Index Health Report\n\n")
+		fmt.Fprintf(&b, "- Repo: `%s`\n", report.Repo)
+		fmt.Fprintf(&b, "- Branch: `%s`\n", report.Branch)
+		fmt.Fprintf(&b, "- Status: `%s`\n", report.Status)
+		fmt.Fprintf(&b, "- Discovered indexes: %d\n", len(report.IndexFiles))
+		fmt.Fprintf(&b, "- Open TODOs: %d\n", report.OpenTODOs)
+		fmt.Fprintf(&b, "- Completed TODOs: %d\n", report.CompletedTODOs)
+		fmt.Fprintf(&b, "- Lint errors: %d\n", report.LintErrors)
+		fmt.Fprintf(&b, "- Lint warnings: %d\n\n", report.LintWarnings)
+		b.WriteString("### Index Summaries\n\n")
+		for _, entry := range report.Reports {
+			fmt.Fprintf(&b, "- [ ] `%s` - status `%s`, open %d, completed %d, lint errors %d, lint warnings %d\n",
+				entry.IndexFile, entry.Status, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
+		}
+		b.WriteString("\n")
+		return b.String(), nil
+	case "text":
+		var b strings.Builder
+		fmt.Fprintf(&b, "Repo: %s\n", report.Repo)
+		fmt.Fprintf(&b, "Branch: %s\n", report.Branch)
+		fmt.Fprintf(&b, "Status: %s\n", strings.ToUpper(report.Status))
+		fmt.Fprintf(&b, "Discovered indexes: %d\n", len(report.IndexFiles))
+		fmt.Fprintf(&b, "Open TODOs: %d\n", report.OpenTODOs)
+		fmt.Fprintf(&b, "Completed TODOs: %d\n", report.CompletedTODOs)
+		fmt.Fprintf(&b, "Lint errors: %d\n", report.LintErrors)
+		fmt.Fprintf(&b, "Lint warnings: %d\n", report.LintWarnings)
+		b.WriteString("\nIndex summaries:\n")
+		for _, entry := range report.Reports {
+			fmt.Fprintf(&b, "  %s\t%s\topen=%d\tcompleted=%d\terrors=%d\twarnings=%d\n",
+				entry.IndexFile, strings.ToUpper(entry.Status), entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
+		}
+		return b.String(), nil
+	default:
+		return "", fmt.Errorf("unsupported format %q", format)
+	}
+}
+
+func RenderIndexes(indexes []string, format string) (string, error) {
+	switch format {
+	case "json":
+		return marshal(struct {
+			Indexes []string `json:"indexes"`
+		}{Indexes: indexes})
+	case "tsv":
+		var b strings.Builder
+		b.WriteString("index_file\ttodo_root\n")
+		for _, index := range indexes {
+			fmt.Fprintf(&b, "%s\t%s\n", index, path.Dir(index))
+		}
+		return b.String(), nil
+	case "markdown":
+		var b strings.Builder
+		b.WriteString("## TODO Indexes\n\n")
+		if len(indexes) == 0 {
+			b.WriteString("- [x] None found\n")
+			return b.String(), nil
+		}
+		for _, index := range indexes {
+			fmt.Fprintf(&b, "- [ ] `%s`\n", index)
+		}
+		return b.String(), nil
+	case "text":
+		var b strings.Builder
+		for _, index := range indexes {
+			b.WriteString(index)
+			b.WriteByte('\n')
 		}
 		return b.String(), nil
 	default:
@@ -318,18 +403,6 @@ func writeListTSV(b *strings.Builder, kind string, values []string) {
 	for _, value := range values {
 		fmt.Fprintf(b, "%s\t%s\t\n", kind, value)
 	}
-}
-
-func countFindings(findings []model.LintFinding) (errorsCount, warningsCount int) {
-	for _, finding := range findings {
-		switch finding.Severity {
-		case "error":
-			errorsCount++
-		case "warning":
-			warningsCount++
-		}
-	}
-	return errorsCount, warningsCount
 }
 
 func SortedKeys[K ~string, V any](m map[K]V) []K {

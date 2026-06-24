@@ -46,10 +46,25 @@ func (r *Repo) ShowFile(branch, path string) (string, error) {
 }
 
 func (r *Repo) ListFiles(branch, prefix string) ([]string, error) {
+	if strings.TrimSpace(prefix) == "" {
+		return r.ListAllFiles(branch)
+	}
 	out, err := runGit(r.Root, "ls-tree", "-r", "--name-only", branch, "--", prefix)
 	if err != nil {
 		return nil, err
 	}
+	return splitFiles(out), nil
+}
+
+func (r *Repo) ListAllFiles(branch string) ([]string, error) {
+	out, err := runGit(r.Root, "ls-tree", "-r", "--name-only", branch)
+	if err != nil {
+		return nil, err
+	}
+	return splitFiles(out), nil
+}
+
+func splitFiles(out string) []string {
 	lines := strings.Split(strings.TrimSpace(out), "\n")
 	var files []string
 	for _, line := range lines {
@@ -58,7 +73,7 @@ func (r *Repo) ListFiles(branch, prefix string) ([]string, error) {
 			files = append(files, line)
 		}
 	}
-	return files, nil
+	return files
 }
 
 func (r *Repo) ReverseLog(branch, path string) ([]HistoryEntry, error) {
