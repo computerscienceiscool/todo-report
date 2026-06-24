@@ -11,6 +11,7 @@ import (
 
 	"todo-report/internal/age"
 	"todo-report/internal/drift"
+	fleetcalc "todo-report/internal/fleet"
 	"todo-report/internal/gitrepo"
 	healthcalc "todo-report/internal/health"
 	"todo-report/internal/lint"
@@ -40,6 +41,8 @@ func run(args []string) error {
 		return runIndexes(args[1:])
 	case "lint":
 		return runLint(args[1:])
+	case "fleet":
+		return runFleet(args[1:])
 	case "health":
 		return runHealth(args[1:])
 	default:
@@ -228,38 +231,11 @@ func runHealth(args []string) error {
 	}
 
 	if *allIndexes {
-		indexes, err := todo.DiscoverIndexes(repo, *branch)
+		multiReport, err := loadMultiHealthReport(repo, *branch, *compare)
 		if err != nil {
 			return err
 		}
-		var compareIndexes []string
-		if *compare != "" {
-			compareIndexes, err = todo.DiscoverIndexes(repo, *compare)
-			if err != nil {
-				return err
-			}
-		}
-		branchIndexSet := makeSet(indexes)
-		compareIndexSet := makeSet(compareIndexes)
-		onlyInBranch, onlyInCompare := diffSets(branchIndexSet, compareIndexSet)
-		reports := make([]model.HealthReport, 0, len(indexes))
-		for _, discovered := range indexes {
-			compareForIndex := ""
-			if *compare != "" && compareIndexSet[discovered] {
-				compareForIndex = *compare
-			}
-			reportData, err := loadHealthReport(repo, *branch, discovered, compareForIndex)
-			if err != nil {
-				return err
-			}
-			reportData.PresentInCompare = compareForIndex == *compare && compareForIndex != ""
-			if *compare != "" && !compareIndexSet[discovered] {
-				reportData.Status = escalateStatus(reportData.Status)
-			}
-			reports = append(reports, reportData)
-		}
-		sort.Slice(reports, func(i, j int) bool { return reports[i].IndexFile < reports[j].IndexFile })
-		out, err := report.RenderMultiHealth(healthcalc.BuildMulti(repo.Name, *branch, *compare, reports, onlyInBranch, onlyInCompare), formatValue)
+		out, err := report.RenderMultiHealth(multiReport, formatValue)
 		if err != nil {
 			return err
 		}
@@ -280,9 +256,120 @@ func runHealth(args []string) error {
 	return nil
 }
 
+func runFleet(args []string) error {
+	if len(args) == 0 {
+		return errors.New("fleet requires a subcommand")
+	}
+	switch args[0] {
+	case "health":
+		return runFleetHealth(args[1:])
+	default:
+		return fmt.Errorf("unsupported fleet subcommand %q", args[0])
+	}
+}
+
+func runFleetHealth(args []string) error {
+	fs := flag.NewFlagSet("fleet health", flag.ContinueOnError)
+	repoList := fs.String("repo-list", "", "path to a newline-delimited repo list")
+	branch := fs.String("branch", "", "branch to inspect")
+	indexPath := fs.String("index", "TODO/TODO.md", "path to the authoritative TODO index, relative to repo root")
+	allIndexes := fs.Bool("all-indexes", false, "discover all TODO/TODO.md indexes per repo and summarize them together")
+	format := fs.String("format", "text", "output format: text, markdown, json, tsv")
+	jsonFlag := fs.Bool("json", false, "alias for --format json")
+	compare := fs.String("compare", "", "optional branch to compare against")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	formatValue, err := normalizeFormat(*format, *jsonFlag)
+	if err != nil {
+		return err
+	}
+	if *repoList == "" {
+		return errors.New("fleet health requires --repo-list")
+	}
+	if *branch == "" {
+		return errors.New("fleet health requires --branch")
+	}
+
+	repos, err := fleetcalc.LoadRepoList(*repoList)
+	if err != nil {
+		return err
+	}
+	entries := make([]model.FleetHealthEntry, 0, len(repos))
+	for _, repoPath := range repos {
+		entry := model.FleetHealthEntry{
+			RepoPath:   repoPath,
+			IndexMode:  "single-index",
+			IndexCount: 1,
+		}
+		if *allIndexes {
+			entry.IndexMode = "all-indexes"
+		}
+
+		repo, err := gitrepo.Open(repoPath)
+		if err != nil {
+			entry.Repo = filepath.Base(repoPath)
+			entry.Status = "error"
+			entry.Error = err.Error()
+			entries = append(entries, entry)
+			continue
+		}
+		entry.Repo = repo.Name
+
+		if *allIndexes {
+			multiReport, err := loadMultiHealthReport(repo, *branch, *compare)
+			if err != nil {
+				entry.Status = "error"
+				entry.Error = err.Error()
+				entries = append(entries, entry)
+				continue
+			}
+			entry.Status = multiReport.Status
+			entry.IndexCount = len(multiReport.IndexFiles)
+			entry.OpenTODOs = multiReport.OpenTODOs
+			entry.CompletedTODOs = multiReport.CompletedTODOs
+			entry.LintErrors = multiReport.LintErrors
+			entry.LintWarnings = multiReport.LintWarnings
+			entry.DriftItems = multiReport.DriftItems
+			entry.IndexesWithErrors = multiReport.IndexesWithErrors
+			entry.IndexesWithWarning = multiReport.IndexesWithWarning
+			entry.MultiHealth = &multiReport
+			entries = append(entries, entry)
+			continue
+		}
+
+		healthReport, err := loadHealthReport(repo, *branch, *indexPath, *compare)
+		if err != nil {
+			entry.Status = "error"
+			entry.Error = err.Error()
+			entries = append(entries, entry)
+			continue
+		}
+		entry.Status = healthReport.Status
+		entry.OpenTODOs = healthReport.OpenTODOs
+		entry.CompletedTODOs = healthReport.CompletedTODOs
+		entry.LintErrors = healthReport.LintErrors
+		entry.LintWarnings = healthReport.LintWarnings
+		if healthReport.Drift != nil {
+			entry.DriftItems = healthReport.Drift.TotalDifferenceRows
+		}
+		entry.IndexesWithErrors = boolToInt(healthReport.LintErrors > 0)
+		entry.IndexesWithWarning = boolToInt(healthReport.LintWarnings > 0)
+		entry.Health = &healthReport
+		entries = append(entries, entry)
+	}
+
+	out, err := report.RenderFleetHealth(fleetcalc.BuildHealthReport(*branch, *compare, *repoList, entries), formatValue)
+	if err != nil {
+		return err
+	}
+	fmt.Print(out)
+	return nil
+}
+
 func usageError() error {
 	name := filepath.Base(os.Args[0])
-	return fmt.Errorf("usage: %s <age|drift|indexes|lint|health> [flags]", name)
+	return fmt.Errorf("usage: %s <age|drift|indexes|lint|health|fleet> [flags]", name)
 }
 
 func normalizeFormat(format string, jsonFlag bool) (string, error) {
@@ -327,6 +414,41 @@ func loadHealthReport(repo *gitrepo.Repo, branch, indexPath, compare string) (mo
 	return report, nil
 }
 
+func loadMultiHealthReport(repo *gitrepo.Repo, branch, compare string) (model.MultiHealthReport, error) {
+	indexes, err := todo.DiscoverIndexes(repo, branch)
+	if err != nil {
+		return model.MultiHealthReport{}, err
+	}
+	var compareIndexes []string
+	if compare != "" {
+		compareIndexes, err = todo.DiscoverIndexes(repo, compare)
+		if err != nil {
+			return model.MultiHealthReport{}, err
+		}
+	}
+	branchIndexSet := makeSet(indexes)
+	compareIndexSet := makeSet(compareIndexes)
+	onlyInBranch, onlyInCompare := diffSets(branchIndexSet, compareIndexSet)
+	reports := make([]model.HealthReport, 0, len(indexes))
+	for _, discovered := range indexes {
+		compareForIndex := ""
+		if compare != "" && compareIndexSet[discovered] {
+			compareForIndex = compare
+		}
+		reportData, err := loadHealthReport(repo, branch, discovered, compareForIndex)
+		if err != nil {
+			return model.MultiHealthReport{}, err
+		}
+		reportData.PresentInCompare = compareForIndex == compare && compareForIndex != ""
+		if compare != "" && !compareIndexSet[discovered] {
+			reportData.Status = escalateStatus(reportData.Status)
+		}
+		reports = append(reports, reportData)
+	}
+	sort.Slice(reports, func(i, j int) bool { return reports[i].IndexFile < reports[j].IndexFile })
+	return healthcalc.BuildMulti(repo.Name, branch, compare, reports, onlyInBranch, onlyInCompare), nil
+}
+
 func makeSet(values []string) map[string]bool {
 	out := make(map[string]bool, len(values))
 	for _, value := range values {
@@ -358,4 +480,11 @@ func escalateStatus(status string) string {
 	default:
 		return "warning"
 	}
+}
+
+func boolToInt(v bool) int {
+	if v {
+		return 1
+	}
+	return 0
 }

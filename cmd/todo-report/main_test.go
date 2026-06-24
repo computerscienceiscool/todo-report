@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -47,9 +48,24 @@ func TestRunErrors(t *testing.T) {
 			want: "health requires --branch",
 		},
 		{
+			name: "fleet missing subcommand",
+			args: []string{"fleet"},
+			want: "fleet requires a subcommand",
+		},
+		{
+			name: "fleet bad subcommand",
+			args: []string{"fleet", "bogus"},
+			want: `unsupported fleet subcommand "bogus"`,
+		},
+		{
 			name: "indexes missing branch",
 			args: []string{"indexes"},
 			want: "indexes requires --branch",
+		},
+		{
+			name: "fleet health missing repo list",
+			args: []string{"fleet", "health", "--branch", "main"},
+			want: "fleet health requires --repo-list",
 		},
 	}
 
@@ -225,6 +241,33 @@ func TestRunLintWithNestedIndexEndToEnd(t *testing.T) {
 
 	if !strings.Contains(out, "WARNING orphan_detail_file") {
 		t.Fatalf("expected orphan detail warning in %q", out)
+	}
+}
+
+func TestRunFleetHealthEndToEnd(t *testing.T) {
+	repoA := sampleCLIRepo(t)
+	repoB := sampleMultiIndexCompareRepo(t)
+	listDir := t.TempDir()
+	repoList := filepath.Join(listDir, "repos.txt")
+	content := strings.Join([]string{
+		repoA.Dir,
+		repoB.Dir,
+		filepath.Join(listDir, "missing-repo"),
+	}, "\n")
+	if err := os.WriteFile(repoList, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out := captureStdout(t, func() {
+		if err := run([]string{"fleet", "health", "--repo-list", repoList, "--branch", "main", "--all-indexes", "--compare", "jj", "--format", "text"}); err != nil {
+			t.Fatalf("run fleet health: %v", err)
+		}
+	})
+
+	for _, want := range []string{"Repo list:", "Repos: 3", "Successful repos: 2", "Repo errors: 1", "mode=all-indexes", "missing-repo"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("expected %q in %q", want, out)
+		}
 	}
 }
 

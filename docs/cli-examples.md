@@ -107,6 +107,42 @@ todo-report health \
 This is useful when the repo has multiple authoritative TODO roots and the team
 needs repo-wide drift totals plus branch-only index visibility.
 
+## Fleet example
+
+Create a repo list file:
+
+```text
+~/lab/cswg/coordination
+~/lab/wire-lab
+```
+
+Run a fleet-wide summary:
+
+```bash
+todo-report fleet health \
+  --repo-list repos.txt \
+  --branch main \
+  --all-indexes \
+  --format text
+```
+
+This is useful when the team wants one report across a portfolio of repos
+instead of running the tool manually per repo.
+
+Fleet compare:
+
+```bash
+todo-report fleet health \
+  --repo-list repos.txt \
+  --branch main \
+  --all-indexes \
+  --compare jj \
+  --format text
+```
+
+This is useful when a team wants repo-by-repo drift counts across a set of
+working branches.
+
 ## Known limitations
 
 - Root-level `TODO/TODO.md` is still the default, but nested indexes are
@@ -114,6 +150,8 @@ needs repo-wide drift totals plus branch-only index visibility.
 - `health --all-indexes --compare` keeps open/completed/lint totals anchored to
   the selected branch and adds repo-wide drift and branch-only index lists for
   the comparison branch.
+- `fleet health` currently supports repo lists through `--repo-list`; it does
+  not yet support inline repeated `--repo` flags.
 - Cross-TODO references like `TODO-foo/bar` are not treated as missing subtasks
   in the current parent detail file.
 - Checkbox-style detail subtasks accept `[ ]`, `[x]`, and `[~]`, with `[~]`

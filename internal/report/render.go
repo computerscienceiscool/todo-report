@@ -426,6 +426,90 @@ func RenderIndexes(indexes []string, format string) (string, error) {
 	}
 }
 
+func RenderFleetHealth(report model.FleetHealthReport, format string) (string, error) {
+	switch format {
+	case "json":
+		return marshal(report)
+	case "tsv":
+		var b strings.Builder
+		b.WriteString("scope\trepo\trepo_path\tstatus\tindex_mode\tindex_count\topen_todos\tcompleted_todos\tlint_errors\tlint_warnings\tdrift_items\terror\n")
+		fmt.Fprintf(&b, "summary\t(all)\t%s\t%s\t-\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+			report.RepoListFile, report.Status, report.RepoCount, report.OpenTODOs, report.CompletedTODOs, report.LintErrors, report.LintWarnings, report.DriftItems, report.ErrorCount)
+		for _, entry := range report.Entries {
+			fmt.Fprintf(&b, "repo\t%s\t%s\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n",
+				entry.Repo, entry.RepoPath, entry.Status, entry.IndexMode, entry.IndexCount, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings, entry.DriftItems, cleanTSV(entry.Error))
+		}
+		return b.String(), nil
+	case "markdown":
+		var b strings.Builder
+		b.WriteString("## Fleet Health Report\n\n")
+		fmt.Fprintf(&b, "- Branch: `%s`\n", report.Branch)
+		if report.CompareBranch != "" {
+			fmt.Fprintf(&b, "- Compare branch: `%s`\n", report.CompareBranch)
+		}
+		fmt.Fprintf(&b, "- Repo list: `%s`\n", report.RepoListFile)
+		fmt.Fprintf(&b, "- Status: `%s`\n", report.Status)
+		fmt.Fprintf(&b, "- Repos: %d\n", report.RepoCount)
+		fmt.Fprintf(&b, "- Successful repos: %d\n", report.SuccessCount)
+		fmt.Fprintf(&b, "- Repo errors: %d\n", report.ErrorCount)
+		fmt.Fprintf(&b, "- Open TODOs: %d\n", report.OpenTODOs)
+		fmt.Fprintf(&b, "- Completed TODOs: %d\n", report.CompletedTODOs)
+		fmt.Fprintf(&b, "- Lint errors: %d\n", report.LintErrors)
+		fmt.Fprintf(&b, "- Lint warnings: %d\n", report.LintWarnings)
+		if report.CompareBranch != "" {
+			fmt.Fprintf(&b, "- Fleet drift rows: %d\n", report.DriftItems)
+		}
+		b.WriteString("\n### Repos\n\n")
+		for _, entry := range report.Entries {
+			if entry.Error != "" {
+				fmt.Fprintf(&b, "- [ ] `%s` - status `%s`, error: %s\n", entry.RepoPath, entry.Status, entry.Error)
+				continue
+			}
+			line := fmt.Sprintf("- [ ] `%s` - status `%s`, mode `%s`, indexes %d, open %d, completed %d, lint errors %d, lint warnings %d",
+				entry.Repo, entry.Status, entry.IndexMode, entry.IndexCount, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
+			if report.CompareBranch != "" {
+				line += fmt.Sprintf(", drift rows %d", entry.DriftItems)
+			}
+			b.WriteString(line + "\n")
+		}
+		return b.String(), nil
+	case "text":
+		var b strings.Builder
+		fmt.Fprintf(&b, "Branch: %s\n", report.Branch)
+		if report.CompareBranch != "" {
+			fmt.Fprintf(&b, "Compare branch: %s\n", report.CompareBranch)
+		}
+		fmt.Fprintf(&b, "Repo list: %s\n", report.RepoListFile)
+		fmt.Fprintf(&b, "Status: %s\n", strings.ToUpper(report.Status))
+		fmt.Fprintf(&b, "Repos: %d\n", report.RepoCount)
+		fmt.Fprintf(&b, "Successful repos: %d\n", report.SuccessCount)
+		fmt.Fprintf(&b, "Repo errors: %d\n", report.ErrorCount)
+		fmt.Fprintf(&b, "Open TODOs: %d\n", report.OpenTODOs)
+		fmt.Fprintf(&b, "Completed TODOs: %d\n", report.CompletedTODOs)
+		fmt.Fprintf(&b, "Lint errors: %d\n", report.LintErrors)
+		fmt.Fprintf(&b, "Lint warnings: %d\n", report.LintWarnings)
+		if report.CompareBranch != "" {
+			fmt.Fprintf(&b, "Fleet drift rows: %d\n", report.DriftItems)
+		}
+		b.WriteString("\nRepos:\n")
+		for _, entry := range report.Entries {
+			if entry.Error != "" {
+				fmt.Fprintf(&b, "  %s\tERROR\t%s\n", entry.RepoPath, entry.Error)
+				continue
+			}
+			fmt.Fprintf(&b, "  %s\t%s\tmode=%s\tindexes=%d\topen=%d\tcompleted=%d\terrors=%d\twarnings=%d",
+				entry.Repo, strings.ToUpper(entry.Status), entry.IndexMode, entry.IndexCount, entry.OpenTODOs, entry.CompletedTODOs, entry.LintErrors, entry.LintWarnings)
+			if report.CompareBranch != "" {
+				fmt.Fprintf(&b, "\tdrift=%d", entry.DriftItems)
+			}
+			b.WriteByte('\n')
+		}
+		return b.String(), nil
+	default:
+		return "", fmt.Errorf("unsupported format %q", format)
+	}
+}
+
 func marshal(v any) (string, error) {
 	data, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
@@ -461,6 +545,12 @@ func writeListTSV(b *strings.Builder, kind string, values []string) {
 	for _, value := range values {
 		fmt.Fprintf(b, "%s\t%s\t\n", kind, value)
 	}
+}
+
+func cleanTSV(value string) string {
+	value = strings.ReplaceAll(value, "\t", " ")
+	value = strings.ReplaceAll(value, "\n", " ")
+	return value
 }
 
 func SortedKeys[K ~string, V any](m map[K]V) []K {

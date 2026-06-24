@@ -142,3 +142,37 @@ type MultiHealthReport struct {
 	IndexesWithErrors    int            `json:"indexes_with_errors"`
 	IndexesWithWarning   int            `json:"indexes_with_warnings"`
 }
+
+type FleetHealthEntry struct {
+	Repo               string             `json:"repo"`
+	RepoPath           string             `json:"repo_path"`
+	Status             string             `json:"status"`
+	Error              string             `json:"error,omitempty"`
+	IndexMode          string             `json:"index_mode"`
+	IndexCount         int                `json:"index_count"`
+	OpenTODOs          int                `json:"open_todos"`
+	CompletedTODOs     int                `json:"completed_todos"`
+	LintErrors         int                `json:"lint_errors"`
+	LintWarnings       int                `json:"lint_warnings"`
+	DriftItems         int                `json:"drift_items"`
+	IndexesWithErrors  int                `json:"indexes_with_errors"`
+	IndexesWithWarning int                `json:"indexes_with_warnings"`
+	Health             *HealthReport      `json:"health,omitempty"`
+	MultiHealth        *MultiHealthReport `json:"multi_health,omitempty"`
+}
+
+type FleetHealthReport struct {
+	Branch         string             `json:"branch"`
+	CompareBranch  string             `json:"compare_branch,omitempty"`
+	RepoListFile   string             `json:"repo_list_file"`
+	Status         string             `json:"status"`
+	RepoCount      int                `json:"repo_count"`
+	SuccessCount   int                `json:"success_count"`
+	ErrorCount     int                `json:"error_count"`
+	OpenTODOs      int                `json:"open_todos"`
+	CompletedTODOs int                `json:"completed_todos"`
+	LintErrors     int                `json:"lint_errors"`
+	LintWarnings   int                `json:"lint_warnings"`
+	DriftItems     int                `json:"drift_items"`
+	Entries        []FleetHealthEntry `json:"entries"`
+}

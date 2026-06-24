@@ -229,6 +229,51 @@ func TestRenderIndexesFormats(t *testing.T) {
 	}
 }
 
+func TestRenderFleetHealthFormats(t *testing.T) {
+	report := model.FleetHealthReport{
+		Branch:         "main",
+		CompareBranch:  "jj",
+		RepoListFile:   "/tmp/repos.txt",
+		Status:         "warning",
+		RepoCount:      2,
+		SuccessCount:   1,
+		ErrorCount:     1,
+		OpenTODOs:      7,
+		CompletedTODOs: 3,
+		LintErrors:     0,
+		LintWarnings:   2,
+		DriftItems:     5,
+		Entries: []model.FleetHealthEntry{
+			{Repo: "coordination", RepoPath: "/tmp/coordination", Status: "warning", IndexMode: "all-indexes", IndexCount: 2, OpenTODOs: 7, CompletedTODOs: 3, LintWarnings: 2, DriftItems: 5},
+			{Repo: "broken", RepoPath: "/tmp/broken", Status: "error", Error: "open repo failed", IndexMode: "single-index"},
+		},
+	}
+
+	tests := []struct {
+		format string
+		want   []string
+	}{
+		{format: "text", want: []string{"Repo list: /tmp/repos.txt", "Fleet drift rows: 5", "/tmp/broken\tERROR\topen repo failed"}},
+		{format: "markdown", want: []string{"## Fleet Health Report", "- Branch: `main`", "error: open repo failed"}},
+		{format: "json", want: []string{`"repo_count": 2`, `"repo_path": "/tmp/coordination"`}},
+		{format: "tsv", want: []string{"scope\trepo\trepo_path\tstatus", "summary\t(all)\t/tmp/repos.txt\twarning", "repo\tbroken\t/tmp/broken\terror"}},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.format, func(t *testing.T) {
+			out, err := RenderFleetHealth(report, tc.format)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			for _, want := range tc.want {
+				if !strings.Contains(out, want) {
+					t.Fatalf("expected %q in output %q", want, out)
+				}
+			}
+		})
+	}
+}
+
 func TestRenderUnsupportedFormat(t *testing.T) {
 	_, err := RenderAge(nil, "yaml")
 	if err == nil {

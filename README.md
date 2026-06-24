@@ -23,6 +23,8 @@ and optional branch drift into one report.
 
 For monorepos, `indexes` discovers every authoritative `TODO/TODO.md` in the
 selected branch, and `health --all-indexes` rolls them into a repo-wide summary.
+For many repos, `fleet health --repo-list repos.txt` rolls those per-repo
+summaries into a single portfolio view.
 
 ## PromiseGrid relationship
 
@@ -141,6 +143,18 @@ selected branch and reports a combined monorepo summary. With
 `--all-indexes --compare`, totals stay anchored to the selected branch while
 repo-wide drift and branch-only index lists are added for the comparison.
 
+### `fleet health`
+
+```bash
+todo-report fleet health --repo-list repos.txt --branch main
+todo-report fleet health --repo-list repos.txt --branch main --all-indexes
+todo-report fleet health --repo-list repos.txt --branch main --all-indexes --compare jj
+```
+
+Reads a newline-delimited repo list and produces a fleet-wide health report.
+Each repo is processed independently, so one broken repo path or one bad branch
+does not abort the whole fleet run.
+
 ## Output formats
 
 All commands support:
@@ -192,6 +206,12 @@ Multi-index monorepo comparison:
 
 ```bash
 todo-report health --repo ~/lab/wire-lab --branch main --all-indexes --compare jj
+```
+
+Fleet summary across many repos:
+
+```bash
+todo-report fleet health --repo-list repos.txt --branch main --all-indexes
 ```
 
 Markdown report for GitHub:
