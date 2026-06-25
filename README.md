@@ -20,6 +20,23 @@ tool with human-readable output by default.
 - supported TODO dialects: [docs/supported-styles.md](docs/supported-styles.md)
 - FAQ: [docs/faq.md](docs/faq.md)
 
+## Running the CLI
+
+From a fresh checkout, use the repo-local launcher:
+
+```bash
+./todo-report health --repo ~/lab/cswg/coordination --branch jj --format text
+```
+
+If you want the bare `todo-report` command shown in the CLI examples, install it:
+
+```bash
+go install ./cmd/todo-report
+```
+
+If the binary still is not found after install, add your Go bin directory to
+`PATH` (commonly `~/go/bin`).
+
 ## What it does
 
 The tool has three main features:

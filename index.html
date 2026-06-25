@@ -394,6 +394,45 @@
       </div>
     </section>
 
+    <section aria-labelledby="run-title">
+      <div class="section-head">
+        <div>
+          <h2 id="run-title">Run it locally first</h2>
+        </div>
+        <p>
+          For a fresh checkout, use <code>./todo-report</code>. The bare
+          <code>todo-report</code> form assumes the binary is already installed
+          on your <code>PATH</code>.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="card">
+          <span class="tag">Fresh Checkout</span>
+          <h3><code>./todo-report</code></h3>
+          <p>Repo-local launcher for demos and first-run use without shell setup.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Installed CLI</span>
+          <h3><code>todo-report</code></h3>
+          <p>Canonical Unix-style command once the binary is installed into a directory on <code>PATH</code>.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">Install</span>
+          <h3><code>go install ./cmd/todo-report</code></h3>
+          <p>Builds the binary for users who prefer the shorter installed-command workflow.</p>
+        </article>
+
+        <article class="card">
+          <span class="tag">PATH</span>
+          <h3><code>~/go/bin</code></h3>
+          <p>If install succeeds but the command is not found, add your Go bin directory to <code>PATH</code>.</p>
+        </article>
+      </div>
+    </section>
+
     <section aria-labelledby="features-title">
       <div class="section-head">
         <div>
@@ -585,10 +624,9 @@ S122
           <h2 id="examples-title">Example commands</h2>
         </div>
         <p>
-          The CLI stays readable by default, but it also exports
-          <code>markdown</code>, <code>json</code>, and <code>tsv</code>, and it
-          can narrow large runs with repo and index filters while returning
-          script-friendly exit codes.
+          For the demo page, these examples use the repo-local launcher so they
+          work from a fresh checkout. The installed form stays documented in the
+          CLI examples.
         </p>
       </div>
 
@@ -597,19 +635,19 @@ S122
           <span class="terminal-dot"></span>
           <span>examples</span>
         </div>
-        <pre><code>todo-report age --repo ~/lab/cswg/coordination --branch jj
-todo-report drift --repo ~/lab/cswg/coordination --branch-a main --branch-b jj
-todo-report lint --repo ~/lab/cswg/coordination --branch jj --format markdown
-todo-report indexes --repo ~/lab/wire-lab --branch main --format text
-todo-report indexes --repo ~/lab/wire-lab --branch main --include-index SIM-beta --format text
-todo-report health --repo ~/lab/wire-lab --branch main --all-indexes --format text
-todo-report health --repo ~/lab/cswg/coordination --branch jj --all-indexes --compare main --format text
-todo-report fleet health --repo-list repos.txt --branch main --all-indexes --format text
-todo-report fleet health --repo ~/lab/cswg/coordination --repo ~/lab/wire-lab --branch main --all-indexes --format text
-todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/ --format text
-todo-report drift --repo ~/lab/cswg/coordination --branch-a main --branch-b jj --format text; echo $?
-todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet-health.json --format text
-todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-lab.d/TODO/TODO.md --format json</code></pre>
+        <pre><code>./todo-report age --repo ~/lab/cswg/coordination --branch jj
+./todo-report drift --repo ~/lab/cswg/coordination --branch-a main --branch-b jj
+./todo-report lint --repo ~/lab/cswg/coordination --branch jj --format markdown
+./todo-report indexes --repo ~/lab/wire-lab --branch main --format text
+./todo-report indexes --repo ~/lab/wire-lab --branch main --include-index SIM-beta --format text
+./todo-report health --repo ~/lab/wire-lab --branch main --all-indexes --format text
+./todo-report health --repo ~/lab/cswg/coordination --branch jj --all-indexes --compare main --format text
+./todo-report fleet health --repo-list repos.txt --branch main --all-indexes --format text
+./todo-report fleet health --repo ~/lab/cswg/coordination --repo ~/lab/wire-lab --branch main --all-indexes --format text
+./todo-report fleet health --repo-list repos.txt --branch main --all-indexes --include-repo wire-lab --exclude-index retired/ --format text
+./todo-report drift --repo ~/lab/cswg/coordination --branch-a main --branch-b jj --format text; echo $?
+./todo-report fleet health --repo-list repos.txt --branch main --all-indexes --write-json fleet-health.json --format text
+./todo-report health --repo ~/lab/wire-lab --branch main --index protocols/wire-lab.d/TODO/TODO.md --format json</code></pre>
       </div>
     </section>
 

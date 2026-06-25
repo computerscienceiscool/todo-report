@@ -4,6 +4,9 @@ This file records real-world example invocations for `todo-report`.
 
 For a team walkthrough, start with [demo-script.md](demo-script.md).
 
+These examples assume `todo-report` is installed on `PATH`. From the repo root,
+you can alternatively run the same commands with `./todo-report ...`.
+
 Unless otherwise noted, `age` currently reports all top-level TODOs found in
 the selected branch, not only open ones.
 
