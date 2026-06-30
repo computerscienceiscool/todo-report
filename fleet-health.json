@@ -1,0 +1,2490 @@
+{
+  "branch": "main",
+  "repo_list_file": "repos.txt",
+  "status": "error",
+  "repo_count": 3,
+  "success_count": 3,
+  "error_count": 0,
+  "open_todos": 2,
+  "completed_todos": 129,
+  "lint_errors": 39,
+  "lint_warnings": 0,
+  "drift_items": 0,
+  "entries": [
+    {
+      "repo": "commitment-ledger",
+      "repo_path": "/home/jj/lab/commitment-ledger",
+      "status": "error",
+      "index_mode": "all-indexes",
+      "index_count": 1,
+      "open_todos": 0,
+      "completed_todos": 49,
+      "lint_errors": 39,
+      "lint_warnings": 0,
+      "drift_items": 0,
+      "indexes_with_errors": 1,
+      "indexes_with_warnings": 0,
+      "multi_health": {
+        "repo": "commitment-ledger",
+        "branch": "main",
+        "status": "error",
+        "index_files": [
+          "TODO/TODO.md"
+        ],
+        "reports": [
+          {
+            "repo": "commitment-ledger",
+            "branch": "main",
+            "index_file": "TODO/TODO.md",
+            "todo_root": "TODO",
+            "present_in_branch": true,
+            "status": "error",
+            "open_todos": 0,
+            "completed_todos": 49,
+            "lint_errors": 39,
+            "lint_warnings": 0,
+            "finding_summary": [
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "count": 20
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "count": 19
+              }
+            ],
+            "findings": [
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 48,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 49,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 49,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 50,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 50,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 51,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 51,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 52,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 52,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 53,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 53,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 54,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 54,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 55,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 55,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 56,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 56,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 57,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 57,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 58,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 58,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 59,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 59,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 60,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 60,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 61,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 61,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 62,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 62,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 63,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 63,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 64,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 64,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 65,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 65,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 66,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 66,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              },
+              {
+                "severity": "error",
+                "code": "malformed_todo_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 67,
+                "message": "TODO ID \"Retrospective\" is not a supported top-level TODO ID style."
+              },
+              {
+                "severity": "error",
+                "code": "duplicate_id",
+                "todo_id": "Retrospective",
+                "file": "TODO/TODO.md",
+                "line": 67,
+                "message": "TODO ID \"Retrospective\" was already declared on line 48."
+              }
+            ],
+            "age": [
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-jafud",
+                  "title": "Bootstrap repo layout and config-driven CLI skeleton",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-jafud-bootstrap-layout-and-config.md",
+                  "line": 39
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-karud",
+                  "title": "Freeze initial Commitment Ledger protocol docs and pCID workflow",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-karud-freeze-protocol-docs-and-pcid-workflow.md",
+                  "line": 35
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-lodab",
+                  "title": "Observe tracked repos and capture branch-specific git state",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-lodab-observe-repos-and-git-state.md",
+                  "line": 40
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-mipog",
+                  "title": "Parse numeric and proquint TODOs with detail-file subtasks",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-mipog-parse-todos-and-subtasks.md",
+                  "line": 41
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-pazat",
+                  "title": "Add local CAS and CID-addressed artifact retention",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-pazat-local-cas-and-cid-retention.md",
+                  "line": 36
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-rovik",
+                  "title": "Emit signed grid-envelope artifacts for commitments and evidence",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-rovik-signed-grid-artifacts.md",
+                  "line": 37
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-sorik",
+                  "title": "Implement commitment lifecycle commands and reports",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-sorik-commitment-lifecycle-and-reports.md",
+                  "line": 43
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-tuvan",
+                  "title": "Store append-only ledger records in JSONL and Markdown",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-tuvan-ledger-record-storage.md",
+                  "line": 42
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-vubat",
+                  "title": "Add deterministic tests for parsing, storage, and status transitions",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-vubat-core-test-coverage.md",
+                  "line": 44
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-zunod",
+                  "title": "Publish implementation conformance claims and projection rules",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-zunod-conformance-and-projections.md",
+                  "line": 38
+                },
+                "first_seen": "2026-06-22T11:25:25-07:00",
+                "age_days": 3
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-babab",
+                  "title": "Harden assessment, evidence, and reporting invariants",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-babab-harden-assessment-evidence-and-reporting-invariants.md",
+                  "line": 34
+                },
+                "first_seen": "2026-06-23T13:25:00-07:00",
+                "age_days": 2
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Publish conformance claims in `CHANGELOG.md`",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 55
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add doctor checks and import conflict hardening",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 58
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add identity restore and strict recovery checks",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 67
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add repair JSON and identity backup export",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 66
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add identity-lineage repair and exchange summaries",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 65
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add provenance lineage auditing",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 64
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add identity history and signer lineage",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 63
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add provenance browsing and support repair",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 62
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add status JSON and doctor repair hints",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 61
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add JSON inspect and verify output",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 60
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add JSON automation, identity rotation, and receive receipts",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 59
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add local trust policy and exchange summaries",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 57
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Automate conformance publication and local peer exchange",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 56
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add bundle export and import exchange",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 54
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add artifact verification command",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 53
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add operator guide and inspect coverage",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 52
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add inspect command for artifact lookup",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 51
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Fix stale work state and promiser reporting",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 50
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Clarify conformance and protocol migration story",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 48
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "Retrospective",
+                  "title": "Add make workflows and enforce kept completion",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "line": 49
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-babad",
+                  "title": "Add make-based local workflows and demo helpers",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-babad-add-make-based-local-workflows-and-demo-helpers.md",
+                  "line": 33
+                },
+                "first_seen": "2026-06-24T08:45:43-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-dorun",
+                  "title": "Update documentation",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-dorun-update-documentation.md",
+                  "line": 22
+                },
+                "first_seen": "2026-06-24T14:40:35-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-fesob",
+                  "title": "Add bundle-path loss recovery",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-fesob-add-bundle-path-loss-recovery.md",
+                  "line": 17
+                },
+                "first_seen": "2026-06-24T14:40:35-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-garuk",
+                  "title": "Add negative-path exchange fixtures",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-garuk-add-negative-path-exchange-fixtures.md",
+                  "line": 25
+                },
+                "first_seen": "2026-06-24T14:23:47-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-lavok",
+                  "title": "Add bundle-to-receipt reconciliation views",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-lavok-add-bundle-to-receipt-reconciliation-views.md",
+                  "line": 27
+                },
+                "first_seen": "2026-06-24T14:14:27-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-lisuv",
+                  "title": "Add inspect command for artifact and record lookup",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-lisuv-add-inspect-command-for-artifact-and-record-lookup.md",
+                  "line": 32
+                },
+                "first_seen": "2026-06-24T09:19:41-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-lutav",
+                  "title": "Add richer exchange analytics",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-lutav-add-richer-exchange-analytics.md",
+                  "line": 18
+                },
+                "first_seen": "2026-06-24T14:40:35-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-mesad",
+                  "title": "Update demo and operator videos",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-mesad-update-demo-and-operator-videos.md",
+                  "line": 20
+                },
+                "first_seen": "2026-06-24T14:40:35-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-nopud",
+                  "title": "Harden identity restore conflict and partial-restore behavior",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-nopud-harden-identity-restore-conflict-and-partial-restore-behavior.md",
+                  "line": 24
+                },
+                "first_seen": "2026-06-24T14:23:47-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-pivok",
+                  "title": "Add machine-readable contract documentation and versioning",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-pivok-add-machine-readable-contract-documentation-and-versioning.md",
+                  "line": 19
+                },
+                "first_seen": "2026-06-24T14:40:35-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-qatig",
+                  "title": "Update the site",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-qatig-update-the-site.md",
+                  "line": 21
+                },
+                "first_seen": "2026-06-24T14:40:35-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-ramuk",
+                  "title": "Add imported support backup and restore",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-ramuk-add-imported-support-backup-and-restore.md",
+                  "line": 16
+                },
+                "first_seen": "2026-06-24T14:40:35-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-risuk",
+                  "title": "Add operator guide and inspect lifecycle coverage",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-risuk-add-operator-guide-and-inspect-lifecycle-coverage.md",
+                  "line": 31
+                },
+                "first_seen": "2026-06-24T09:39:19-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-savik",
+                  "title": "Review repo health after exchange and recovery hardening",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-savik-review-repo-health-after-exchange-and-recovery-hardening.md",
+                  "line": 26
+                },
+                "first_seen": "2026-06-24T14:23:47-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-temuk",
+                  "title": "Add bundle export/import artifact exchange",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-temuk-add-bundle-export-import-artifact-exchange.md",
+                  "line": 29
+                },
+                "first_seen": "2026-06-24T09:55:43-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-togiv",
+                  "title": "Restore validation and conflict handling polish",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-togiv-restore-validation-and-conflict-handling-polish.md",
+                  "line": 28
+                },
+                "first_seen": "2026-06-24T14:02:38-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-vupat",
+                  "title": "Add artifact verification command and trust docs",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-vupat-add-artifact-verification-command-and-trust-docs.md",
+                  "line": 30
+                },
+                "first_seen": "2026-06-24T09:48:57-07:00",
+                "age_days": 1
+              },
+              {
+                "todo": {
+                  "repo": "commitment-ledger",
+                  "branch": "main",
+                  "commit_hash": "9aa5fb7422716a3fbcbc0f438920b588aa5c852f",
+                  "todo_id": "TODO-zarek",
+                  "title": "Add commitment-level exchange reconciliation",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-zarek-add-commitment-level-exchange-reconciliation.md",
+                  "line": 23
+                },
+                "first_seen": "2026-06-24T14:23:47-07:00",
+                "age_days": 1
+              }
+            ],
+            "orphan_detail_files": null
+          }
+        ],
+        "open_todos": 0,
+        "completed_todos": 49,
+        "lint_errors": 39,
+        "lint_warnings": 0,
+        "drift_items": 0,
+        "indexes_with_drift": 0,
+        "indexes_with_errors": 1,
+        "indexes_with_warnings": 0
+      }
+    },
+    {
+      "repo": "promise-lens",
+      "repo_path": "/home/jj/lab/cswg/promise-lens",
+      "status": "clean",
+      "index_mode": "all-indexes",
+      "index_count": 1,
+      "open_todos": 1,
+      "completed_todos": 0,
+      "lint_errors": 0,
+      "lint_warnings": 0,
+      "drift_items": 0,
+      "indexes_with_errors": 0,
+      "indexes_with_warnings": 0,
+      "multi_health": {
+        "repo": "promise-lens",
+        "branch": "main",
+        "status": "clean",
+        "index_files": [
+          "TODO/TODO.md"
+        ],
+        "reports": [
+          {
+            "repo": "promise-lens",
+            "branch": "main",
+            "index_file": "TODO/TODO.md",
+            "todo_root": "TODO",
+            "present_in_branch": true,
+            "status": "clean",
+            "open_todos": 1,
+            "completed_todos": 0,
+            "oldest_open": {
+              "todo": {
+                "repo": "promise-lens",
+                "branch": "main",
+                "commit_hash": "261a9ce3ba89a11af0be93599681ab3ad4b0100e",
+                "todo_id": "001",
+                "title": "LinkCheck-style reporting parity for Promise Lens",
+                "status": "open",
+                "source_file": "TODO/TODO.md",
+                "line": 5
+              },
+              "first_seen": "2026-06-22T15:45:29-07:00",
+              "age_days": 3
+            },
+            "oldest_open_items": [
+              {
+                "todo": {
+                  "repo": "promise-lens",
+                  "branch": "main",
+                  "commit_hash": "261a9ce3ba89a11af0be93599681ab3ad4b0100e",
+                  "todo_id": "001",
+                  "title": "LinkCheck-style reporting parity for Promise Lens",
+                  "status": "open",
+                  "source_file": "TODO/TODO.md",
+                  "line": 5
+                },
+                "first_seen": "2026-06-22T15:45:29-07:00",
+                "age_days": 3
+              }
+            ],
+            "lint_errors": 0,
+            "lint_warnings": 0,
+            "findings": [],
+            "age": [
+              {
+                "todo": {
+                  "repo": "promise-lens",
+                  "branch": "main",
+                  "commit_hash": "261a9ce3ba89a11af0be93599681ab3ad4b0100e",
+                  "todo_id": "001",
+                  "title": "LinkCheck-style reporting parity for Promise Lens",
+                  "status": "open",
+                  "source_file": "TODO/TODO.md",
+                  "line": 5
+                },
+                "first_seen": "2026-06-22T15:45:29-07:00",
+                "age_days": 3
+              }
+            ],
+            "orphan_detail_files": null
+          }
+        ],
+        "open_todos": 1,
+        "completed_todos": 0,
+        "lint_errors": 0,
+        "lint_warnings": 0,
+        "drift_items": 0,
+        "indexes_with_drift": 0,
+        "indexes_with_errors": 0,
+        "indexes_with_warnings": 0
+      }
+    },
+    {
+      "repo": "promisegrid-dev-guide",
+      "repo_path": "/home/jj/lab/cswg/promisegrid-dev-guide",
+      "status": "clean",
+      "index_mode": "all-indexes",
+      "index_count": 1,
+      "open_todos": 1,
+      "completed_todos": 80,
+      "lint_errors": 0,
+      "lint_warnings": 0,
+      "drift_items": 0,
+      "indexes_with_errors": 0,
+      "indexes_with_warnings": 0,
+      "multi_health": {
+        "repo": "promisegrid-dev-guide",
+        "branch": "main",
+        "status": "clean",
+        "index_files": [
+          "TODO/TODO.md"
+        ],
+        "reports": [
+          {
+            "repo": "promisegrid-dev-guide",
+            "branch": "main",
+            "index_file": "TODO/TODO.md",
+            "todo_root": "TODO",
+            "present_in_branch": true,
+            "status": "clean",
+            "open_todos": 1,
+            "completed_todos": 80,
+            "oldest_open": {
+              "todo": {
+                "repo": "promisegrid-dev-guide",
+                "branch": "main",
+                "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                "todo_id": "TODO-binap",
+                "title": "Lock and flesh out README outline",
+                "status": "open",
+                "source_file": "TODO/TODO.md",
+                "detail_file": "TODO/TODO-binap-readme-outline-lock.md",
+                "line": 5
+              },
+              "first_seen": "2026-05-08T15:34:47-07:00",
+              "age_days": 48
+            },
+            "oldest_open_items": [
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-binap",
+                  "title": "Lock and flesh out README outline",
+                  "status": "open",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-binap-readme-outline-lock.md",
+                  "line": 5
+                },
+                "first_seen": "2026-05-08T15:34:47-07:00",
+                "age_days": 48
+              }
+            ],
+            "lint_errors": 0,
+            "lint_warnings": 0,
+            "findings": [],
+            "age": [
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-binap",
+                  "title": "Lock and flesh out README outline",
+                  "status": "open",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-binap-readme-outline-lock.md",
+                  "line": 5
+                },
+                "first_seen": "2026-05-08T15:34:47-07:00",
+                "age_days": 48
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-rohil",
+                  "title": "Align copied tool module names to this repo",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-rohil-align-tool-module-names.md",
+                  "line": 84
+                },
+                "first_seen": "2026-05-10T17:52:02-07:00",
+                "age_days": 45
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-suhar",
+                  "title": "Align AGENTS PR guidance to meeting decision",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-suhar-align-pr-guidance.md",
+                  "line": 85
+                },
+                "first_seen": "2026-05-10T17:45:22-07:00",
+                "age_days": 45
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-vazog",
+                  "title": "Document guide update trigger",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-vazog-guide-update-trigger.md",
+                  "line": 83
+                },
+                "first_seen": "2026-05-14T19:18:40-07:00",
+                "age_days": 41
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-balil",
+                  "title": "App Devs reading spec docs",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-balil-app-devs-reading-spec-docs.md",
+                  "line": 81
+                },
+                "first_seen": "2026-05-15T17:36:19-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-birot",
+                  "title": "App Devs pCID and spec identity guidance",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-birot-app-devs-pcid-and-spec-identity.md",
+                  "line": 82
+                },
+                "first_seen": "2026-05-15T17:33:09-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-bizad",
+                  "title": "App Devs local pCID graphs and peer exchange",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-bizad-app-devs-local-pcid-graphs-and-peer-exchange.md",
+                  "line": 72
+                },
+                "first_seen": "2026-05-15T19:42:11-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-bofom",
+                  "title": "Kernel Devs no global trust score",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-bofom-kernel-devs-no-global-trust-score.md",
+                  "line": 55
+                },
+                "first_seen": "2026-05-16T10:24:13-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-boluj",
+                  "title": "App Devs per-promise trust",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-boluj-app-devs-per-promise-trust.md",
+                  "line": 73
+                },
+                "first_seen": "2026-05-15T19:33:13-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-borod",
+                  "title": "App Devs crypto agility",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-borod-app-devs-crypto-agility.md",
+                  "line": 50
+                },
+                "first_seen": "2026-05-16T11:13:00-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-bufud",
+                  "title": "App Devs content addressing",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-bufud-app-devs-content-addressing.md",
+                  "line": 70
+                },
+                "first_seen": "2026-05-15T19:52:45-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-dibik",
+                  "title": "Laypeople no central authority and repairable trust",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-dibik-laypeople-no-central-authority-and-repairable-trust.md",
+                  "line": 62
+                },
+                "first_seen": "2026-05-15T20:46:15-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-ditas",
+                  "title": "App Devs content-addressed evidence",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-ditas-app-devs-content-addressed-evidence.md",
+                  "line": 64
+                },
+                "first_seen": "2026-05-15T20:22:14-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-ditiz",
+                  "title": "Laypeople is this for me",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-ditiz-laypeople-is-this-for-me.md",
+                  "line": 46
+                },
+                "first_seen": "2026-05-16T14:20:23-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-fakuz",
+                  "title": "Guide audience selection note",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-fakuz-guide-audience-selection-note.md",
+                  "line": 44
+                },
+                "first_seen": "2026-05-16T15:28:36-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-gisid",
+                  "title": "App Devs frozen specs vs simulation specimens",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-gisid-app-devs-frozen-specs-vs-simulation-specimens.md",
+                  "line": 80
+                },
+                "first_seen": "2026-05-15T18:47:48-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-gofin",
+                  "title": "App Devs append-only history vs mutable state",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-gofin-app-devs-append-only-history-vs-mutable-state.md",
+                  "line": 74
+                },
+                "first_seen": "2026-05-15T19:23:01-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-gogij",
+                  "title": "App Devs conformance claims",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-gogij-app-devs-conformance-claims.md",
+                  "line": 79
+                },
+                "first_seen": "2026-05-15T19:01:47-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-hidam",
+                  "title": "App Devs time and clocks",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-hidam-app-devs-time-and-clocks.md",
+                  "line": 75
+                },
+                "first_seen": "2026-05-15T19:20:09-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-hokos",
+                  "title": "Guide feedback loop",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-hokos-guide-feedback-loop.md",
+                  "line": 43
+                },
+                "first_seen": "2026-05-16T15:35:35-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-homub",
+                  "title": "Laypeople forking gracefully",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-homub-laypeople-forking-gracefully.md",
+                  "line": 61
+                },
+                "first_seen": "2026-05-15T20:49:31-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-jalad",
+                  "title": "App Devs forks and multi-protocol peers",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-jalad-app-devs-forks-and-multi-protocol-peers.md",
+                  "line": 71
+                },
+                "first_seen": "2026-05-15T19:47:20-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-japig",
+                  "title": "App Devs promises not RPCs",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-japig-app-devs-promises-not-rpcs.md",
+                  "line": 77
+                },
+                "first_seen": "2026-05-15T19:15:23-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-jinih",
+                  "title": "Laypeople purpose and 100-year goal",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-jinih-laypeople-purpose-and-100-year-goal.md",
+                  "line": 63
+                },
+                "first_seen": "2026-05-15T20:41:57-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-jokim",
+                  "title": "Laypeople content addressing and pCIDs",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-jokim-laypeople-content-addressing-and-pcids.md",
+                  "line": 58
+                },
+                "first_seen": "2026-05-15T21:11:40-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-jopog",
+                  "title": "App Devs promise framing",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-jopog-app-devs-promise-framing.md",
+                  "line": 48
+                },
+                "first_seen": "2026-05-16T11:13:00-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-jufuj",
+                  "title": "App Devs recognizing guide drift",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-jufuj-app-devs-recognizing-guide-drift.md",
+                  "line": 65
+                },
+                "first_seen": "2026-05-15T20:18:32-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-kijub",
+                  "title": "Kernel Devs constrained runtime profiles",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-kijub-kernel-devs-constrained-runtime-profiles.md",
+                  "line": 53
+                },
+                "first_seen": "2026-05-16T11:13:00-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-kolug",
+                  "title": "App Devs content-addressed simulation evidence",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-kolug-app-devs-content-addressed-simulation-evidence.md",
+                  "line": 51
+                },
+                "first_seen": "2026-05-16T11:13:00-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-lolid",
+                  "title": "App Devs normative vs informative spec references",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-lolid-app-devs-normative-vs-informative-spec-references.md",
+                  "line": 49
+                },
+                "first_seen": "2026-05-16T11:13:00-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-luzuk",
+                  "title": "App Devs malformed message handling",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-luzuk-app-devs-malformed-message-handling.md",
+                  "line": 39
+                },
+                "first_seen": "2026-05-16T16:20:26-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-mapah",
+                  "title": "Guide reader onramp and examples",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-mapah-guide-reader-onramp-and-examples.md",
+                  "line": 47
+                },
+                "first_seen": "2026-05-16T14:11:43-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-mogab",
+                  "title": "App Devs what an app is across hosts",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-mogab-app-devs-what-an-app-is-across-hosts.md",
+                  "line": 42
+                },
+                "first_seen": "2026-05-16T16:00:00-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-niman",
+                  "title": "Kernel Devs crypto agility and key lifecycle",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-niman-kernel-devs-crypto-agility-and-key-lifecycle.md",
+                  "line": 54
+                },
+                "first_seen": "2026-05-16T10:28:28-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-numip",
+                  "title": "Kernel Devs what kernel means",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-numip-kernel-devs-what-kernel-means.md",
+                  "line": 57
+                },
+                "first_seen": "2026-05-16T10:12:55-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-pokot",
+                  "title": "App Devs reading records and filing feedback",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-pokot-app-devs-reading-records-and-filing-feedback.md",
+                  "line": 68
+                },
+                "first_seen": "2026-05-15T20:04:20-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-pudam",
+                  "title": "App Devs reading wire-lab layers",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-pudam-app-devs-reading-wire-lab-layers.md",
+                  "line": 66
+                },
+                "first_seen": "2026-05-15T20:15:00-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-puguf",
+                  "title": "Laypeople durable identity and authority",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-puguf-laypeople-durable-identity-and-authority.md",
+                  "line": 60
+                },
+                "first_seen": "2026-05-15T20:54:06-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-pulov",
+                  "title": "App Devs minimal app example",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-pulov-app-devs-minimal-app-example.md",
+                  "line": 41
+                },
+                "first_seen": "2026-05-16T16:05:32-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-rojos",
+                  "title": "Laypeople concrete vignette",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-rojos-laypeople-concrete-vignette.md",
+                  "line": 45
+                },
+                "first_seen": "2026-05-16T14:27:24-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-sirah",
+                  "title": "Kernel Devs conformance testing by pCID",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-sirah-kernel-devs-conformance-testing-by-pcid.md",
+                  "line": 56
+                },
+                "first_seen": "2026-05-16T10:20:37-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-sitav",
+                  "title": "App Devs adversarial peer profiles",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-sitav-app-devs-adversarial-peer-profiles.md",
+                  "line": 69
+                },
+                "first_seen": "2026-05-15T19:57:15-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-sulur",
+                  "title": "App Devs identity signing keys and rotation",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-sulur-app-devs-identity-signing-keys-and-rotation.md",
+                  "line": 76
+                },
+                "first_seen": "2026-05-15T19:17:38-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-tajak",
+                  "title": "App Devs deterministic vs stochastic agents",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-tajak-app-devs-deterministic-vs-stochastic-agents.md",
+                  "line": 67
+                },
+                "first_seen": "2026-05-15T20:12:39-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-tifiv",
+                  "title": "App Devs protocol migration",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-tifiv-app-devs-protocol-migration.md",
+                  "line": 52
+                },
+                "first_seen": "2026-05-16T11:13:00-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-tuvaf",
+                  "title": "Laypeople design pressures",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-tuvaf-laypeople-design-pressures.md",
+                  "line": 59
+                },
+                "first_seen": "2026-05-15T21:07:32-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-vofig",
+                  "title": "App Devs spec and implementation discovery",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-vofig-app-devs-spec-and-implementation-discovery.md",
+                  "line": 78
+                },
+                "first_seen": "2026-05-15T19:09:18-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-vomad",
+                  "title": "App Devs practical versioning",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-vomad-app-devs-practical-versioning.md",
+                  "line": 38
+                },
+                "first_seen": "2026-05-16T16:25:48-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-zarov",
+                  "title": "App Devs user facing identity",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-zarov-app-devs-user-facing-identity.md",
+                  "line": 40
+                },
+                "first_seen": "2026-05-16T16:15:12-07:00",
+                "age_days": 40
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-boroh",
+                  "title": "App Devs helper process vs protocol component",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-boroh-app-devs-helper-process-vs-protocol-component.md",
+                  "line": 17
+                },
+                "first_seen": "2026-05-16T20:18:29-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-difak",
+                  "title": "App Devs economic coordination patterns",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-difak-app-devs-economic-coordination-patterns.md",
+                  "line": 30
+                },
+                "first_seen": "2026-05-16T17:57:04-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-faras",
+                  "title": "App Devs break witnesses",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-faras-app-devs-break-witnesses.md",
+                  "line": 32
+                },
+                "first_seen": "2026-05-16T17:50:54-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-favuv",
+                  "title": "App Devs interoperability across client embodiments",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-favuv-app-devs-interoperability-across-client-embodiments.md",
+                  "line": 19
+                },
+                "first_seen": "2026-05-16T20:18:29-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-huhuh",
+                  "title": "Kernel Devs L4 binding layer",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-huhuh-kernel-devs-l4-binding-layer.md",
+                  "line": 25
+                },
+                "first_seen": "2026-05-16T18:40:26-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-jofod",
+                  "title": "App Devs portable presentation identity vs durable authority",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-jofod-app-devs-portable-presentation-identity-vs-durable-authority.md",
+                  "line": 20
+                },
+                "first_seen": "2026-05-16T20:18:29-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-kipab",
+                  "title": "App Devs capability tokens as promises",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-kipab-app-devs-capability-tokens-as-promises.md",
+                  "line": 33
+                },
+                "first_seen": "2026-05-16T17:40:59-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-kozud",
+                  "title": "App Devs ingress model orientation",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-kozud-app-devs-ingress-model-orientation.md",
+                  "line": 29
+                },
+                "first_seen": "2026-05-16T18:12:54-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-kupun",
+                  "title": "App Devs companion infrastructure dependencies",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-kupun-app-devs-companion-infrastructure-dependencies.md",
+                  "line": 21
+                },
+                "first_seen": "2026-05-16T20:18:29-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-lifub",
+                  "title": "App Devs stable vs host dependent checklist",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-lifub-app-devs-stable-vs-host-dependent-checklist.md",
+                  "line": 36
+                },
+                "first_seen": "2026-05-16T16:43:12-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-lunud",
+                  "title": "App Devs durable vs ephemeral behavior",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-lunud-app-devs-durable-vs-ephemeral-behavior.md",
+                  "line": 10
+                },
+                "first_seen": "2026-05-16T20:14:05-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-luvan",
+                  "title": "App Devs capability tokens in a real app",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-luvan-app-devs-capability-tokens-in-a-real-app.md",
+                  "line": 13
+                },
+                "first_seen": "2026-05-16T20:14:05-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-mapov",
+                  "title": "Kernel Devs layering obligations",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-mapov-kernel-devs-layering-obligations.md",
+                  "line": 24
+                },
+                "first_seen": "2026-05-16T18:46:18-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-mojim",
+                  "title": "App Devs app boundary vs app internals",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-mojim-app-devs-app-boundary-vs-app-internals.md",
+                  "line": 12
+                },
+                "first_seen": "2026-05-16T20:14:05-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-mudof",
+                  "title": "App Devs bootstrap and rendezvous",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-mudof-app-devs-bootstrap-and-rendezvous.md",
+                  "line": 37
+                },
+                "first_seen": "2026-05-16T16:35:42-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-nimif",
+                  "title": "App Devs multi-protocol app design",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-nimif-app-devs-multi-protocol-app-design.md",
+                  "line": 11
+                },
+                "first_seen": "2026-05-16T20:14:05-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-nojul",
+                  "title": "App Devs mapping an existing app to PromiseGrid",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-nojul-app-devs-mapping-an-existing-app-to-promisegrid.md",
+                  "line": 9
+                },
+                "first_seen": "2026-05-16T20:14:05-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-piduj",
+                  "title": "App Devs harness testing",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-piduj-app-devs-harness-testing.md",
+                  "line": 34
+                },
+                "first_seen": "2026-05-16T17:29:13-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-pigal",
+                  "title": "Kernel Devs promise stack framing",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-pigal-kernel-devs-promise-stack-framing.md",
+                  "line": 26
+                },
+                "first_seen": "2026-05-16T18:36:30-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-radul",
+                  "title": "App Devs draft to frozen workflow",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-radul-app-devs-draft-to-frozen-workflow.md",
+                  "line": 35
+                },
+                "first_seen": "2026-05-16T16:45:36-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-razuf",
+                  "title": "App Devs conformance claims for multi-component apps",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-razuf-app-devs-conformance-claims-for-multi-component-apps.md",
+                  "line": 14
+                },
+                "first_seen": "2026-05-16T20:14:05-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-rigaz",
+                  "title": "Kernel Devs minimum viable port",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-rigaz-kernel-devs-minimum-viable-port.md",
+                  "line": 28
+                },
+                "first_seen": "2026-05-16T18:25:01-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-rohas",
+                  "title": "App Devs worked group-session example",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-rohas-app-devs-worked-group-session-example.md",
+                  "line": 8
+                },
+                "first_seen": "2026-05-17T16:01:44-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-sidid",
+                  "title": "App Devs cross-host conformance for one app",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-sidid-app-devs-cross-host-conformance-for-one-app.md",
+                  "line": 16
+                },
+                "first_seen": "2026-05-16T20:18:29-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-tohoz",
+                  "title": "App Devs promise assertion vocabulary",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-tohoz-app-devs-promise-assertion-vocabulary.md",
+                  "line": 31
+                },
+                "first_seen": "2026-05-16T17:54:58-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-tojaj",
+                  "title": "Kernel Devs ingress taxonomy orientation",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-tojaj-kernel-devs-ingress-taxonomy-orientation.md",
+                  "line": 22
+                },
+                "first_seen": "2026-05-16T19:36:42-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-vibal",
+                  "title": "Kernel Devs runtime surface",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-vibal-kernel-devs-runtime-surface.md",
+                  "line": 27
+                },
+                "first_seen": "2026-05-16T18:29:29-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-vobut",
+                  "title": "App Devs local bridge protocols vs PromiseGrid-facing contract",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-vobut-app-devs-local-bridge-protocols-vs-promisegrid-facing-contract.md",
+                  "line": 18
+                },
+                "first_seen": "2026-05-16T20:18:29-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-vodis",
+                  "title": "App Devs what to persist",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-vodis-app-devs-what-to-persist.md",
+                  "line": 15
+                },
+                "first_seen": "2026-05-16T20:14:05-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-zorop",
+                  "title": "Kernel Devs CAS subtree contract",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-zorop-kernel-devs-cas-subtree-contract.md",
+                  "line": 23
+                },
+                "first_seen": "2026-05-16T18:49:07-07:00",
+                "age_days": 39
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-guzam",
+                  "title": "App Devs udp-feed companion note",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-guzam-app-devs-udp-feed-companion-note.md",
+                  "line": 7
+                },
+                "first_seen": "2026-05-17T16:39:24-07:00",
+                "age_days": 38
+              },
+              {
+                "todo": {
+                  "repo": "promisegrid-dev-guide",
+                  "branch": "main",
+                  "commit_hash": "7a623f11a0c865b17f5d71e82b86b3309e06790d",
+                  "todo_id": "TODO-mojib",
+                  "title": "App Devs pCID and doc-CID in practice",
+                  "status": "completed",
+                  "source_file": "TODO/TODO.md",
+                  "detail_file": "TODO/TODO-mojib-app-devs-pcid-and-doccid-in-practice.md",
+                  "line": 6
+                },
+                "first_seen": "2026-05-17T16:44:41-07:00",
+                "age_days": 38
+              }
+            ],
+            "orphan_detail_files": null
+          }
+        ],
+        "open_todos": 1,
+        "completed_todos": 80,
+        "lint_errors": 0,
+        "lint_warnings": 0,
+        "drift_items": 0,
+        "indexes_with_drift": 0,
+        "indexes_with_errors": 0,
+        "indexes_with_warnings": 0
+      }
+    }
+  ]
+}

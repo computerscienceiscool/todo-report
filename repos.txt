@@ -1,0 +1,3 @@
+~/lab/cswg/promise-lens/
+~/lab/cswg/promisegrid-dev-guide
+~/lab/commitment-ledger
